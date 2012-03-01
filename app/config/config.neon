@@ -1,0 +1,62 @@
+#
+# SECURITY WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
+#
+# If you don't protect this directory from direct web access, anybody will be able to see your passwords.
+# http://nette.org/security-warning
+#
+common:
+	parameters:
+		database:
+			driver: mysql
+			host: localhost
+			dbname: radiozurnal
+			user: root
+			password:
+
+
+	php:
+		date.timezone: Europe/Prague
+		# session.save_path: "%tempDir%/sessions"
+		# zlib.output_compression: yes
+
+
+	nette:
+		session:
+			autoStart: smart
+
+		database:
+			default:
+				dsn: '%database.driver%:host=%database.host%;dbname=%database.dbname%'
+				user: %database.user%
+				password: %database.password%
+
+
+	services:
+#		templateCacheStorage:
+#			class: Nette\Caching\Storages\DevNullStorage
+
+#		cacheStorage:
+#			class: Nette\Caching\Storages\DevNullStorage
+
+		database: @Nette\Database\Connection
+
+		authenticator: Authenticator( @database::table(users) )
+
+		playlists: 
+			Playlist( @database )
+
+		interprets: 
+			factory: @database::table(interpret)
+
+		songs:
+			factory: @database::table(song)
+
+		interpretSongs:
+			factory: @database::table(interpret_song)
+
+	factories:
+
+
+production < common:
+
+development < common:

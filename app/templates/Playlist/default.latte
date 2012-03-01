@@ -1,0 +1,126 @@
+{* This is the welcome page, you can delete it *}
+
+{block content}
+
+{form searchForm class => "ac ajaxSubmit"}
+    {input keyword}
+    {input find}
+{/form searchForm}
+
+
+
+{*control songSaveForm*}
+{snippet list}
+
+<table class="table table-striped table-bordered table-condensed">
+    <thead>
+        <tr>
+            <th>interpret</th>
+            <th>song</th>
+            <th>...</th>
+            <th>info</th>
+        </tr>
+    </thead>
+
+    {?$pocet = count($interpretSongs)}   
+
+    <tbody n:if="$interpretSongs">
+        <tr n:foreach="$interpretSongs->limit(25) as $interpretSong">
+            <td>{$interpretSong->interpret->name}</td>
+            <td>{$interpretSong->song->title}</td>
+            <td>
+                {if (date('Y-m-d', strtotime($interpretSong->created_at)) == date('Y-m-d')) }
+                <a class="label label-success">Dnes přidána</a>
+                {elseif (date('Y-m-d', strtotime($interpretSong->modified_at)) == date('Y-m-d'))}
+                <a class="label label-info">Dnes hrála</a>
+                {else}
+                <a n:href="playNow!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn ajax">Právě hraje</a>
+                {/if}
+                {if (false)}
+                <a n:href="delete!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn ajax">Smazat</a>
+                {/if}
+            </td>
+            <td>
+                <a href="http://www.youtube.com/results?search_query={$interpretSong->interpret->name} {$interpretSong->song->title}">hledej na Youtube</a>
+            </td>
+        </tr>
+    </tbody>    
+
+    <tfoot>
+        <tr>
+            <td colspan="4">Odpovídá filtraci: {$pocet} / Zobrazeno: {$iterations}</td>
+        </tr>
+    </tfoot>
+
+</table>
+{/snippet}
+
+{snippet addForm}
+    {if !count($interpretSongs)}
+        {form songSaveForm class => "ac"}
+            {input interpret}
+            {input song}
+            {input save}
+            {input cancel}
+        {/form songSaveForm}   
+    {/if}
+{/snippet}
+
+<h2>Zbývá identifikovat {?echo($finalCount-count($interpretSongs))} skladeb</h2>
+
+<p> 
+    V článku Lidových novin z 9. ledna 2012
+    <a href="http://www.lidovky.cz/vysilame-malo-skladeb-priznal-sef-ceskeho-rozhlasu-fxz-/ln-media.asp?c=A120108_153143_ln-media_rka">Vysíláme málo skladeb, přiznal šéf Českého rozhlasu</a>
+    bylo generálním ředitelem Českého rozhlasu Peterem Duhanem uvedeno, že playlist Radiožurnálu má okolo 890 skladeb.
+    <br />
+    <b>edit z twitteru na můj dotaz</b> 
+    @rozanek: <i>To je proces na delší dobu, ale v lednu jich bylo kolem 950, těch 890 byl prosinec. Nic bližšího nevím.</i>
+    <br />
+    <b>Zkusme je vyjmenovat!</b>
+</p>
+
+<p>
+    Jak získávat skladby? Já používám pro identifikaci svům mobil a v něm aplikaci SoundHound, která dokáže identifikovat skladbu "z poslechu".
+    Pokud svou skladbu v listu nenajdete (použijte vyhledávání), můžete ji pomocí zobrazeného formuláře přidat. 
+    Pokud ji najdete, potvrďte její hranost tlačítkem "právě hraje", je-li k dispozici...
+</p>
+
+{/block}
+
+
+{block head}
+<style>
+
+</style>
+<script>
+    $(document).ready(function(){
+        
+        setInterval(function(){
+            $( ".addInterpret" ).autocomplete({
+                    source: {link autocompleteInterpret!} ,
+                    minLength: 2,
+                    select: function( event, ui ) { }
+            });        
+
+            $( ".addSong" ).autocomplete({
+                    source: {link autocompleteSong!} ,
+                    minLength: 2,
+                    select: function( event, ui ) { }
+            });  
+        }, 500);        
+                
+        $('input[name=keyword]').keyup(function(){
+           if ($(this).val().length > 2) {
+               $(this).closest('form').submit();
+           }
+        });
+        
+        
+        $("form.ajaxSubmit").submit(function () {
+                $(this).ajaxSubmit();
+                return false;
+        });           
+                
+    });
+</script>
+{/block}
