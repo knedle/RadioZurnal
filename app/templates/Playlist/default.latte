@@ -2,10 +2,15 @@
 
 {block content}
 
-{form searchForm class => "ac ajaxSubmit"}
-    {input keyword}
-    {input find}
-{/form searchForm}
+<div class="page-header">    
+    {form searchForm class => "ac ajaxSubmit"}
+        {input keyword}
+        {input find}    
+        {snippet addButoon span}
+            <a n:href="addNew!" class="btn ajax">Add</a>
+        {/snippet}
+    {/form searchForm}
+</div>
 
 
 
@@ -30,9 +35,9 @@
             <td>{$interpretSong->song->title}</td>
             <td>
                 {if (date('Y-m-d', strtotime($interpretSong->created_at)) == date('Y-m-d')) }
-                <a class="label label-success">Dnes přidána</a>
+                <span class="label label-success">Dnes přidána</span>
                 {elseif (date('Y-m-d', strtotime($interpretSong->modified_at)) == date('Y-m-d'))}
-                <a class="label label-info">Dnes hrála</a>
+                <span class="label label-info">Dnes hrála</span>
                 {else}
                 <a n:href="playNow!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn ajax">Právě hraje</a>
                 {/if}
@@ -66,6 +71,7 @@
     {/if}
 {/snippet}
 
+<div class="hero-unit">
 <h2>Zbývá identifikovat {?echo($finalCount-count($interpretSongs))} skladeb</h2>
 
 <p> 
@@ -84,6 +90,8 @@
     Pokud svou skladbu v listu nenajdete (použijte vyhledávání), můžete ji pomocí zobrazeného formuláře přidat. 
     Pokud ji najdete, potvrďte její hranost tlačítkem "právě hraje", je-li k dispozici...
 </p>
+
+</div>
 
 {/block}
 

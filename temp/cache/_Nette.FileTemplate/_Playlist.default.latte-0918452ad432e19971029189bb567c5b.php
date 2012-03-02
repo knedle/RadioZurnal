@@ -1,16 +1,16 @@
-<?php //netteCache[01]000382a:2:{s:4:"time";s:21:"0.19119900 1330615288";s:9:"callbacks";a:2:{i:0;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:9:"checkFile";}i:1;s:60:"C:\wamp\www\radiozurnal\app\templates\Playlist\default.latte";i:2;i:1330615283;}i:1;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:10:"checkConst";}i:1;s:25:"Nette\Framework::REVISION";i:2;s:30:"52832ac released on 2012-02-24";}}}?><?php
+<?php //netteCache[01]000382a:2:{s:4:"time";s:21:"0.42566900 1330644132";s:9:"callbacks";a:2:{i:0;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:9:"checkFile";}i:1;s:60:"C:\wamp\www\radiozurnal\app\templates\Playlist\default.latte";i:2;i:1330615282;}i:1;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:10:"checkConst";}i:1;s:25:"Nette\Framework::REVISION";i:2;s:30:"52832ac released on 2012-02-24";}}}?><?php
 
 // source file: C:\wamp\www\radiozurnal\app\templates\Playlist\default.latte
 
 ?><?php
 // prolog Nette\Latte\Macros\CoreMacros
-list($_l, $_g) = Nette\Latte\Macros\CoreMacros::initRuntime($template, 'z352atp1yj')
+list($_l, $_g) = Nette\Latte\Macros\CoreMacros::initRuntime($template, '1bt46lxqe2')
 ;
 // prolog Nette\Latte\Macros\UIMacros
 //
 // block content
 //
-if (!function_exists($_l->blocks['content'][] = '_lb78473b343b_content')) { function _lb78473b343b_content($_l, $_args) { extract($_args)
+if (!function_exists($_l->blocks['content'][] = '_lba941518db5_content')) { function _lba941518db5_content($_l, $_args) { extract($_args)
 ;Nette\Latte\Macros\FormMacros::renderFormBegin($form = $_form = $_control["searchForm"], array('class' => "ac ajaxSubmit")) ?>
     <?php echo $_form["keyword"]->getControl()->addAttributes(array()) ?>
 
@@ -49,7 +49,7 @@ if (!function_exists($_l->blocks['content'][] = '_lb78473b343b_content')) { func
 //
 // block _list
 //
-if (!function_exists($_l->blocks['_list'][] = '_lb00de0f32f3__list')) { function _lb00de0f32f3__list($_l, $_args) { extract($_args); $_control->validateControl('list')
+if (!function_exists($_l->blocks['_list'][] = '_lbb43f869e07__list')) { function _lbb43f869e07__list($_l, $_args) { extract($_args); $_control->validateControl('list')
 ?>
 <table class="table table-striped table-bordered table-condensed">
     <thead>
@@ -103,7 +103,7 @@ if (!function_exists($_l->blocks['_list'][] = '_lb00de0f32f3__list')) { function
 //
 // block _addForm
 //
-if (!function_exists($_l->blocks['_addForm'][] = '_lb6a445b810b__addForm')) { function _lb6a445b810b__addForm($_l, $_args) { extract($_args); $_control->validateControl('addForm')
+if (!function_exists($_l->blocks['_addForm'][] = '_lb659d3e645f__addForm')) { function _lb659d3e645f__addForm($_l, $_args) { extract($_args); $_control->validateControl('addForm')
 ;if (!count($interpretSongs)): Nette\Latte\Macros\FormMacros::renderFormBegin($form = $_form = $_control["songSaveForm"], array('class' => "ac")) ?>
             <?php echo $_form["interpret"]->getControl()->addAttributes(array()) ?>
 
@@ -119,7 +119,7 @@ if (!function_exists($_l->blocks['_addForm'][] = '_lb6a445b810b__addForm')) { fu
 //
 // block head
 //
-if (!function_exists($_l->blocks['head'][] = '_lb276d64d0b2_head')) { function _lb276d64d0b2_head($_l, $_args) { extract($_args)
+if (!function_exists($_l->blocks['head'][] = '_lb49ac6caea6_head')) { function _lb49ac6caea6_head($_l, $_args) { extract($_args)
 ?><style>
 
 </style>

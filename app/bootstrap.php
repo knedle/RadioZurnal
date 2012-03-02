@@ -32,6 +32,5 @@ $container = $configurator->createContainer();
 $container->router[] = new Route('index.php', 'Playlist:default', Route::ONE_WAY);
 $container->router[] = new Route('<presenter>/<action>[/<id>]', 'Playlist:default');
 
-
 // Configure and run the application!
 $container->application->run();

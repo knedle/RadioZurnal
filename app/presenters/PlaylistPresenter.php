@@ -27,7 +27,7 @@ class PlaylistPresenter extends BasePresenter {
         $playlist = $this->getService('playlists');
         $this->template->limit = $this->limit;
         $this->template->finalCount = $this->finalCount;
-        $this->template->interpretSongs = $playlist->interpretSongs->order('created_at');
+        $this->template->interpretSongs = $playlist->interpretSongs->order('created_at DESC');
     }
 
     /**
@@ -40,7 +40,7 @@ class PlaylistPresenter extends BasePresenter {
 //        $this->template->interpretSongs = $this->getService('interprets')->order('created_at');
         $this->flashMessage('Záznam byl odstraněn...');
         if ($this->isAjax()) {
-            $this->template->interpretSongs = $playlist->interpretSongs->order('created_at');
+            $this->template->interpretSongs = $playlist->interpretSongs->order('created_at DESC');
             $this->invalidateControl('list');
         } else {
             $this->redirect('this');
@@ -95,6 +95,17 @@ class PlaylistPresenter extends BasePresenter {
             
         }
     }
+    
+    public function handleAddNew() {
+        $playlist = $this->getService('playlists');
+        if ($this->isAjax()) {
+            $this->template->interpretSongs = $playlist->interpretSongs->where('0');
+            $this->invalidateControl('list');
+            $this->invalidateControl('addForm');
+        } else {
+            $this->redirect('this');
+        }
+    }    
 
     public function songSaveFormSubmitted(Form $form) {
         // volá se po odeslání formuláře
