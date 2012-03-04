@@ -14,8 +14,8 @@ class PlaylistPresenter extends BasePresenter {
     private $interprets;
     private $songs;
     private $interpretSongs;
-    private $limit = 15;
-    private $finalCount = 890; // z clanku...
+    private $perPage = 25;
+    private $finalCount = 950; // z clanku...
 
     protected function startup() {
         parent::startup();
@@ -25,9 +25,20 @@ class PlaylistPresenter extends BasePresenter {
 
     public function renderDefault() {
         $playlist = $this->getService('playlists');
-        $this->template->limit = $this->limit;
-        $this->template->finalCount = $this->finalCount;
-        $this->template->interpretSongs = $playlist->interpretSongs->order('created_at DESC');
+        $dataSource = $playlist->interpretSongs;
+
+        $vp = new VisualPaginator($this, 'vp');
+
+        $paginator = $vp->getPaginator();
+        $paginator->itemsPerPage = $this->perPage;
+        $paginator->itemCount = $dataSource->count();
+
+        $dataSource->limit($paginator->itemsPerPage, $paginator->offset)->order('created_at DESC');
+
+        $this->template->limit = $this->perPage;
+        $this->template->finalCount = $this->finalCount; // cilovy pocet
+        $this->template->totalCount = $paginator->itemCount; // pocet v db
+        $this->template->interpretSongs = $dataSource;
     }
 
     /**
@@ -51,15 +62,18 @@ class PlaylistPresenter extends BasePresenter {
      *
      * @param type $data 
      */
-    public function handlePlayNow($data) {
-        $playlist = $this->getService('playlists');
-        $playlist->playNow($data);
-        if ($this->isAjax()) {
-            $this->template->interpretSongs = $playlist->interpretSongs->order('created_at');
-            $this->invalidateControl('list');
-        } else {
-            $this->redirect('this');
-        }
+    public function handlePlayNow($data, $confirm = null) {
+        if ($confirm) {
+            $playlist = $this->getService('playlists');
+            $playlist->playNow($data);
+            if ($this->isAjax()) {
+                $this->template->interpretSongs = $playlist->interpretSongs->order('created_at DESC');
+                $this->template->confirm = 1;
+                $this->invalidateControl('list');
+            } else {
+                $this->redirect('this');
+            }
+        }         
     }
 
     protected function createComponentSongSaveForm() {
@@ -75,8 +89,8 @@ class PlaylistPresenter extends BasePresenter {
     protected function createComponentSearchForm() {
         $form = new Form;
         $form->setMethod('GET');
-        $form->addText('keyword', 'část názvu/jména interpreta:')->setAttribute('placeholder', 'část názvu songu / část jména interpreta')->setAttribute('class', 'span6 filterList')->setAttribute('autocomplete', 'off');
-        $form->addSubmit('find', 'najdi')->setAttribute('class', 'span2 btn btn-primary');
+        $form->addText('keyword', 'část názvu/jména interpreta:')->setAttribute('placeholder', 'část názvu songu / část jména interpreta')->setAttribute('class', 'span6 filterList icon-search')->setAttribute('autocomplete', 'off');
+        $form->addSubmit('find', 'najdi')->setAttribute('class', 'span2 btn btn-primary icon-search');
         $form->onSuccess[] = callback($this, 'searchFormSubmitted');
         return $form;
     }
@@ -95,7 +109,7 @@ class PlaylistPresenter extends BasePresenter {
             
         }
     }
-    
+
     public function handleAddNew() {
         $playlist = $this->getService('playlists');
         if ($this->isAjax()) {
@@ -105,7 +119,7 @@ class PlaylistPresenter extends BasePresenter {
         } else {
             $this->redirect('this');
         }
-    }    
+    }
 
     public function songSaveFormSubmitted(Form $form) {
         // volá se po odeslání formuláře

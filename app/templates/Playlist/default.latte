@@ -2,15 +2,15 @@
 
 {block content}
 
-<div class="page-header">    
     {form searchForm class => "ac ajaxSubmit"}
         {input keyword}
         {input find}    
         {snippet addButoon span}
-            <a n:href="addNew!" class="btn ajax">Add</a>
+<a n:href="addNew!" class="btn ajax"><i class="icon-plus-sign"></i> Add</a>
         {/snippet}
     {/form searchForm}
-</div>
+
+<hr>
 
 
 
@@ -22,38 +22,57 @@
         <tr>
             <th>interpret</th>
             <th>song</th>
-            <th>...</th>
-            <th>info</th>
+            <th class="ac">info</th>
+            <th class="ac">více...</th>
         </tr>
     </thead>
 
     {?$pocet = count($interpretSongs)}   
 
     <tbody n:if="$interpretSongs">
-        <tr n:foreach="$interpretSongs->limit(25) as $interpretSong">
+        <tr n:foreach="$interpretSongs as $interpretSong">
             <td>{$interpretSong->interpret->name}</td>
             <td>{$interpretSong->song->title}</td>
-            <td>
+            <td class="ac">
                 {if (date('Y-m-d', strtotime($interpretSong->created_at)) == date('Y-m-d')) }
                 <span class="label label-success">Dnes přidána</span>
                 {elseif (date('Y-m-d', strtotime($interpretSong->modified_at)) == date('Y-m-d'))}
                 <span class="label label-info">Dnes hrála</span>
                 {else}
-                <a n:href="playNow!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn ajax">Právě hraje</a>
+                {if !empty($confirm)}
+                <a n:href="playNow!, $interpretSong->interpret_id.'-'.$interpretSong->song_id, 1" class="btn ajax addConfirm" rel="tooltip" title="Právě hraje"><i class="icon-headphones"></i></a>
+                {else} 
+                <a n:href="playNow!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn ajax addConfirm" rel="tooltip" title="Právě hraje"><i class="icon-headphones"></i></a>
+                {/if}
+                <span class="label" rel="tooltip" title="poslední den, kdy byla slyšena">{(strtotime($interpretSong->created_at) < strtotime($interpretSong->modified_at)? (date('d.m.Y', strtotime($interpretSong->modified_at))) : (date('d.m.Y', strtotime($interpretSong->created_at))))}</span>
                 {/if}
                 {if (false)}
                 <a n:href="delete!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn ajax">Smazat</a>
                 {/if}
             </td>
-            <td>
-                <a href="http://www.youtube.com/results?search_query={$interpretSong->interpret->name} {$interpretSong->song->title}">hledej na Youtube</a>
+            <td class="ac">
+                <a rel="tooltip" title="hledej na youtube" href="http://www.youtube.com/results?search_query={$interpretSong->interpret->name} {$interpretSong->song->title}"><img src="http://s.ytimg.com/yt/img/creators_corner/YouTube/youtube_24x24.png" alt="Přihlaste se k odběru mého kanálu na YouTube"/></a>
             </td>
         </tr>
     </tbody>    
 
     <tfoot>
-        <tr>
-            <td colspan="4">Odpovídá filtraci: {$pocet} / Zobrazeno: {$iterations}</td>
+        {if count($iterations)}
+        <tr>        
+
+            <td colspan="4">
+                Odpovídá filtraci: {$totalCount} / Zobrazeno: {$iterations}
+            </td>
+        </tr>
+        {/if}        
+        <tr>    
+            <td colspan="4" class="ac">
+                {if count($iterations)}
+                {widget vp}                  
+                {else}
+                <b>Na základě filtrace nebyla nalezena žádná data...</b>
+                {/if}                
+            </td>
         </tr>
     </tfoot>
 
@@ -72,25 +91,35 @@
 {/snippet}
 
 <div class="hero-unit">
-<h2>Zbývá identifikovat {?echo($finalCount-count($interpretSongs))} skladeb</h2>
+    <h2 class="ac">Zbývá identifikovat ~{?echo($finalCount-$totalCount)} skladeb</h2>
+
 
 <p> 
     V článku Lidových novin z 9. ledna 2012
     <a href="http://www.lidovky.cz/vysilame-malo-skladeb-priznal-sef-ceskeho-rozhlasu-fxz-/ln-media.asp?c=A120108_153143_ln-media_rka">Vysíláme málo skladeb, přiznal šéf Českého rozhlasu</a>
     bylo generálním ředitelem Českého rozhlasu Peterem Duhanem uvedeno, že playlist Radiožurnálu má okolo 890 skladeb.
-    <br />
-    <b>edit z twitteru na můj dotaz</b> 
-    @rozanek: <i>To je proces na delší dobu, ale v lednu jich bylo kolem 950, těch 890 byl prosinec. Nic bližšího nevím.</i>
-    <br />
-    <b>Zkusme je vyjmenovat!</b>
 </p>
 
 <p>
-    Jak získávat skladby? Já používám pro identifikaci svům mobil a v něm aplikaci SoundHound, která dokáže identifikovat skladbu "z poslechu".
-    Pokud svou skladbu v listu nenajdete (použijte vyhledávání), můžete ji pomocí zobrazeného formuláře přidat. 
-    Pokud ji najdete, potvrďte její hranost tlačítkem "právě hraje", je-li k dispozici...
-</p>
+    A novější informace - odpověd na můj dotaz na twitteru:<br />
+    <a href="https://twitter.com/#!/3knedle/status/175238636458094592">@rozanek</a>: <i>To je proces na delší dobu, ale v lednu jich bylo kolem 950, těch 890 byl prosinec. Nic bližšího nevím.</i>
+</p>    
 
+
+<!--h2 class="ac">Zkusme je vyjmenovat!</h2-->
+
+</div>
+
+<div class="well">
+    <p>
+        <b>Jak získávat skladby? </b><br/>
+        Já používám pro identifikaci svům mobil (Android) a v něm aplikace <a href="http://www.soundhound.com/">SoundHound</a> nebo <a href="http://www.shazam.com/">Shazam</a>, která dokáží identifikovat skladbu "z poslechu".<br />
+        Shazam je obecně rychlejší a úspěšněji identifikuje CZ/SK skladby; s těmi má SoundHound problémy. Ovšem SoundHound se mi líbí více, takže to střídám...        
+    </p>
+    <p>
+        Pokud svou skladbu v seznamu nenajdete (použijte vyhledávání), můžete ji pomocí zobrazeného formuláře přidat. <br />
+        Pokud ji najdete, potvrďte její hranost přes ikonku <a class="btn"><i class="icon-headphones"></i></a>, je-li k dispozici...
+    </p>
 </div>
 
 {/block}
@@ -128,7 +157,18 @@
                 $(this).ajaxSubmit();
                 return false;
         });           
-                
+                                       
+        $('table').tooltip({
+            selector: "[rel=tooltip]",
+            placement: "left"
+        });
+        
+        $('.addConfirm').each(function(){
+            $(this).attr("href", $(this).attr('href') + "&confirm=1");
+        });
+        
+      
+        
     });
 </script>
 {/block}

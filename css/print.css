@@ -5,5 +5,5 @@ a img { border: none; }
 }
 
 .ac {
-    text-align: center;
+    text-align: center !important;
 }
