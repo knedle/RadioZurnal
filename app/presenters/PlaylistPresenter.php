@@ -103,6 +103,7 @@ class PlaylistPresenter extends BasePresenter {
             if (empty($values['keyword'])) {
                 $this->redirect('this');
             }
+            $this->template->confirm = 1;
             $this->invalidateControl('list');
             $this->invalidateControl('addForm');
         } else {
