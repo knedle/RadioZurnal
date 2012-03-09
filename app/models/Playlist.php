@@ -48,7 +48,8 @@ class Playlist extends Nette\Object {
                 // jiz existuje
             } else {
                 // ulozit song u interpreta
-                $interpret->related('interpret_song')->insert(array('song_id' => $song['id'], 'created_at' => new \Nette\Database\SqlLiteral('NOW()')));
+                $year = !empty($values['year']) ? $values['year'] : 0;
+                $interpret->related('interpret_song')->insert(array('song_id' => $song['id'], 'year' => $year, 'created_at' => new \Nette\Database\SqlLiteral('NOW()')));
             }
 
             return true;
@@ -98,9 +99,104 @@ class Playlist extends Nette\Object {
     public function playNow($data) {
         list($interpretId, $songId) = explode('-', $data);
         if (!empty($interpretId) && !empty($songId)) {
-            $row = $this->interpretSongs->where('interpret_id', $interpretId)->where('song_id', $songId)->fetch();         
+            $row = $this->interpretSongs->where('interpret_id', $interpretId)->where('song_id', $songId)->fetch();
             $row->update(array('counter' => new \Nette\Database\SqlLiteral('`counter` + 1'), 'modified_at' => new \Nette\Database\SqlLiteral('NOW()')));
             $this->interpretSongs = $this->database->table('interpret_song');
         }
     }
+
+    /**
+     *
+     * @param type $table
+     * @param type $column
+     * @param type $primaryKey
+     * @return type 
+     */
+    public function detectColumnTypeAndData($table, $column, $primaryKey) {
+        $query = $this->database->table($table)->select($column);
+        $object = null;
+        // je-li to cislo, predpokladame sloupec id
+        if (is_numeric($primaryKey)) {
+            $object = $query->get($primaryKey);
+        } else {
+            $decodeJson = json_decode($primaryKey);
+            $decodeJson = get_object_vars($decodeJson);
+            if (is_array($decodeJson)) {
+                foreach ($decodeJson as $col => $val) {
+                    $query->where($col, $val);
+                }
+                $object = $query->fetch();
+            }
+        }
+
+        if (isset($object[$column])) {
+            $fields = $this->database->query('SHOW COLUMNS FROM ' . $table);
+            foreach ($fields as $field) {
+                if ($field->Field == $column) {
+                    // detekovat
+                    switch (true) {
+                        case (preg_match("/text/", $field->Type)) :
+                            $type = 'textarea';
+                            break;
+                        default:
+                            $type = 'text';
+                            break;
+                    }
+                    break;
+                }
+            }
+
+            return array(
+                'value' => $object[$column],
+                'type' => $type
+            );
+        }
+        return null;
+    }
+
+    /**
+     * 
+     */
+    public function saveValue($data) {
+        $table = $data['table'];
+        unset($data['table']);
+        $column = $data['column'];
+        unset($data['column']);
+        $primaryKey = $data['primaryKey'];
+        unset($data['primaryKey']);
+
+        // projet zbytek, v jedno bude nepradne
+        // udelat jinak
+        $value = '';
+        foreach ($data as $val) {
+            if (!empty($val)) {
+                $value = $val;
+                break;
+            }
+        }
+        $query = $this->database->table($table);
+        $object = null;
+        // je-li to cislo, predpokladame sloupec id
+        if (is_numeric($primaryKey)) {
+            $object = $query->find($primaryKey);
+        } else {
+            $decodeJson = json_decode($primaryKey);
+            $decodeJson = get_object_vars($decodeJson);
+            if (is_array($decodeJson)) {
+                foreach ($decodeJson as $col => $val) {
+                    $query->where($col, $val);
+                }
+                $query->limit(1);
+                $object = $query->fetch();
+            }
+        }
+        if (count($object)) {
+            $object->update(array($column => $value));
+            //$this->interpretSongs = $this->database->table('interpret_song');
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

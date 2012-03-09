@@ -1,1 +1,1 @@
-<?php //netteCache[01]000070a:2:{s:4:"time";s:21:"0.98998100 1330898321";s:10:"serialized";b:1;}?>a:6:{s:7:"song_id";b:1;s:9:"interpret";b:0;s:12:"interpret_id";b:1;s:4:"song";b:0;s:10:"created_at";b:1;s:11:"modified_at";b:1;}
+<?php //netteCache[01]000070a:2:{s:4:"time";s:21:"0.52476400 1331329577";s:10:"serialized";b:1;}?>a:7:{s:7:"song_id";b:1;s:9:"interpret";b:0;s:12:"interpret_id";b:1;s:4:"song";b:0;s:4:"year";b:1;s:10:"created_at";b:1;s:11:"modified_at";b:1;}

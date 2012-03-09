@@ -1130,6 +1130,9 @@ table .span12 {
 .icon-white {
   background-image: url(../img/glyphicons-halflings-white.png);
 }
+.icon-gray {
+  background-image: url(../img/glyphicons-halflings-gray.png);
+}
 .icon-glass {
   background-position: 0      0;
 }

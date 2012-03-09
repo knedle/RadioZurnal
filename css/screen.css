@@ -23,3 +23,11 @@ a[href^="error:"] {
 .ac  {
     text-align: center !important;
 }
+
+.ar {
+    text-align: right !important;
+}
+
+.fr {
+    float: right !important;
+}
