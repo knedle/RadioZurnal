@@ -55,7 +55,7 @@ common:
 			factory: @database::table(interpret_song)
 
 	factories:
-
+		#interpretSongs: @database::table(interpret_song)
 
 production < common:
 

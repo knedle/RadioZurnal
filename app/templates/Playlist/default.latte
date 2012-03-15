@@ -48,7 +48,7 @@
                     {/if}                     
                 {/if}
             </th>
-            <th class="ac">
+            <th class="ac span1">
                 rok
                 {if $showSort && ($sortBy != 'year-asc')}
                     {if preg_match('/year/', $sortBy)}
@@ -62,7 +62,7 @@
                     {/if}                      
                 {/if}                
             </th>
-            <th class="ac">
+            <th class="ac span2">
                 info
                 {if $showSort && ($sortBy != 'created-at-asc')}
                     {if preg_match('/created-at/', $sortBy)}
@@ -79,14 +79,14 @@
             <th class="ac">více...</th>
         </tr>
     </thead>
-
-    {?$pocet = count($interpretSongs)}   
+    
+    {?$pocet = count($interpretSongs)}       
 
     <tbody n:if="$interpretSongs">
         <tr n:foreach="$interpretSongs as $interpretSong" data-id='{?echo json_encode(array('song_id'=>$interpretSong->song_id,'interpret_id'=>$interpretSong->interpret_id))}' data-table="interpret_song">
             <td data-id="{$interpretSong->interpret->id}" data-column="name" data-table="interpret">{$interpretSong->interpret->name}</td>
             <td data-id="{$interpretSong->song->id}" data-column="title" data-table="song">{$interpretSong->song->title}</td>
-            <td class="ac" data-column="year">{empty($interpretSong->year) ? "" : $interpretSong->year}</td>
+            <td class="ac" data-column="year">{$interpretSong->year == "0000" ? "" : $interpretSong->year}</td>
             <td class="ac">
                 {if (date('Y-m-d', strtotime($interpretSong->created_at)) == date('Y-m-d')) }
                 <span class="label label-success">Dnes přidána</span>
@@ -105,7 +105,8 @@
                 {/if}
             </td>
             <td class="ac">
-                <a rel="tooltip" title="hledej na youtube" href="http://www.youtube.com/results?search_query={$interpretSong->interpret->name} {$interpretSong->song->title}"><img src="http://s.ytimg.com/yt/img/creators_corner/YouTube/youtube_24x24.png" alt="Přihlaste se k odběru mého kanálu na YouTube"/></a>
+                <a rel="tooltip" title="hledej na youtube" href="http://www.youtube.com/results?search_query={$interpretSong->interpret->name} {$interpretSong->song->title}"><img src="{$basePath}/images/youtube-24x24.png" alt="hledej na youtube" /></a>
+                <a rel="tooltip" title="hledej na wikipedii" href="http://www.google.cz/search?q=wikipedia {$interpretSong->interpret->name} {$interpretSong->song->title}"><img src="{$basePath}/images/wikipedia-24x24.png" alt="hledej na wikipedii"/></a>
             </td>
         </tr>
     </tbody>    
@@ -114,13 +115,13 @@
         {if count($iterations)}
         <tr>        
 
-            <td colspan="4">
+            <td colspan="5">
                 Odpovídá filtraci: {$totalCount} / Zobrazeno: {$iterations}
             </td>
         </tr>
         {/if}        
         <tr>    
-            <td colspan="4" class="ac">
+            <td colspan="5" class="ac">
                 {if count($iterations)}
                 {widget vp}                  
                 {else}
@@ -228,12 +229,14 @@
                     select: function( event, ui ) { }
             });  
         }, 500);        
-                
+          
+        /*  
         $('input[name=keyword]').keyup(function(){
            if ($(this).val().length > 2) {
                $(this).closest('form').submit();
            }
         });
+        */
         
         
         $("form.ajaxSubmit").submit(function () {
@@ -276,6 +279,7 @@
                 success: function(data){                   
                     if (data) {
                         var modal = $('#myModal');
+                        var input = null;
                         $('[name=primaryKey]', $(modal)).val(data.primaryKey);
                         $('[name=table]', $(modal)).val(data.table);
                         $('[name=column]', $(modal)).val(data.column);
@@ -283,17 +287,37 @@
                         $('.selectOne', $(modal)).val(data.value).each(function(){
                             if ($(this).attr('data-type') == data.type) {
                                $(this).removeAttr('disabled').show();
+                               input = this;
                             }
                             else {
                                 $(this).attr('disabled', 'disabled').hide();
                             }
                         });                    
-                        $('#myModal').modal('toggle');                    
+                        $('#myModal').modal('toggle');
+
+
                     }
                 }
             });
 
         });
+        
+        $('#myModal').on('shown', function () {
+            $('.selectOne:first:visible', $(this)).focus().select();
+        });
+        
+        jwerty.key('ctrl+i', function () {
+            console.log('jump to interpret add input');
+            $('.addInterpret').focus();
+        });
+
+        jwerty.key('ctrl+alt+i', function () {
+            console.log('copy first interpret name to interpret add input interpret and jump to song add input');
+            var interpret = $('[data-table=interpret]:first').text();
+            console.log(interpret);
+            $('.addInterpret').val(interpret);
+            $('.addSong').focus();
+        });            
         
     });
 </script>

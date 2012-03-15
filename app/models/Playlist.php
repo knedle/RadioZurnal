@@ -3,11 +3,15 @@
 use Nette\Diagnostics;
 
 class Playlist extends Nette\Object {
+    
+    const AGGREGATION_YEAR = 'year';
+    const AGGREGATION_DECADE = 'decade';
 
     /** @var Nette\Database\Table\Selection */
     private $interprets;
     private $songs;
     private $database;
+    
     public $interpretSongs;
 
     public function __construct(Nette\Database\Connection $database) {
@@ -96,10 +100,14 @@ class Playlist extends Nette\Object {
         }
     }
 
+    /**
+     *
+     * @param type $data 
+     */
     public function playNow($data) {
         list($interpretId, $songId) = explode('-', $data);
         if (!empty($interpretId) && !empty($songId)) {
-            $row = $this->interpretSongs->where('interpret_id', $interpretId)->where('song_id', $songId)->fetch();
+            $row = $this->interpretSongs->where('interpret_id', $interpretId)->where('song_id', $songId)->/*where('DATE(modified_at)', new \Nette\Database\SqlLiteral('DATE()'))->*/fetch();
             $row->update(array('counter' => new \Nette\Database\SqlLiteral('`counter` + 1'), 'modified_at' => new \Nette\Database\SqlLiteral('NOW()')));
             $this->interpretSongs = $this->database->table('interpret_song');
         }
@@ -199,4 +207,8 @@ class Playlist extends Nette\Object {
         }
     }
 
+    public function loadAgregation($by = '')  {
+        $this->interpretSongs->select('COUNT(`year`) AS yearCount, year')->where('NOT year', 0)->order('year DESC');
+        return $this->interpretSongs->group('year');
+    }
 }

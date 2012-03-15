@@ -19,7 +19,7 @@
 
         <title>Playlist Radiožurnálu</title>
 
-        <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/screen.css" type="text/css">
+        <link rel="stylesheet" media="all" href="{$basePath}/css/screen.css" type="text/css">
         <link rel="stylesheet" media="print" href="{$basePath}/css/print.css" type="text/css">
         <link rel="stylesheet" media="" href="{$basePath}/css/bootstrap.css" type="text/css">
         <link rel="stylesheet" media="" href="{$basePath}/css/bootstrap-responsive.min.css" type="text/css">
@@ -31,17 +31,19 @@
         <script type="text/javascript" src="{$basePath}/js/netteForms.js"></script>
         <script type="text/javascript" src="{$basePath}/js/jquery.nette.js"></script>
         <script type="text/javascript" src="{$basePath}/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="{$basePath}/js/jwerty.js"></script>
 
-<script type="text/javascript">
-/* <![CDATA[ */
-    (function() {
-        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
-        s.type = 'text/javascript';
-        s.async = true;
-        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
-        t.parentNode.insertBefore(s, t);
-    })();
-/* ]]> */</script>
+        <script type="text/javascript">
+        /* <![CDATA[ */
+            (function() {
+                var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+                s.type = 'text/javascript';
+                s.async = true;
+                s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+                t.parentNode.insertBefore(s, t);
+            })();        
+            
+        /* ]]> */</script>
 
 	{block head}{/block}
     </head>
@@ -50,13 +52,30 @@
         <script> document.body.className+=' js' </script>
 
         <div class="container">
-            <div class="page-header">
+            <div class="page-headerx row">
+                
+                <div class="span5">                
+                    <h1>playlist Radiožurnálu</h1>
+                    <p>Český rozhlas 1 - Radiožurnál</p>
+                </div>
 
-<span class="fr"><a class="FlattrButton" style="display:none;" href="http://radiozurnal.3tecky.cz"></a>
-<noscript><a href="http://flattr.com/thing/563364/Playlist-Radiozurnalu" target="_blank">
-<img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript></span>
+                <div class="span6">
 
-                <h1>Playlist RadioŽurnálu</h1>
+                    <ul class="nav nav-pills">
+                        <li class="">
+                            <a>Zobrazení: {$presenter->linkCurrent}</a>
+                        </li>
+                        <li n:class="$presenter->isLinkCurrent('Playlist:default') ? active"><a n:href="playlist:default">úvodní strana</a></li>
+                        <li n:class="$presenter->isLinkCurrent('Playlist:statsByYear')?active"><a n:href="playlist:statsByYear">songy podle roků</a></li>
+                        <!--li><a href="#">podle hratelnosti</a></li-->
+                    </ul>                
+                </div>
+                
+                <div class="span1 ac">
+                <span class=""><a class="FlattrButton" style="display:none;" href="http://radiozurnal.3tecky.cz"></a>
+                    <noscript><a href="http://flattr.com/thing/563364/Playlist-Radiozurnalu" target="_blank">
+                        <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript></span>                    
+                </div>                
             </div>
 
             <div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>            
@@ -64,7 +83,7 @@
 
 	{include #content}
         </div>
-        
+
         <script type="text/javascript">
 
           var _gaq = _gaq || [];

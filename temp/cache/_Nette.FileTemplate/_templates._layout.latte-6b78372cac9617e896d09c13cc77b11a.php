@@ -1,16 +1,16 @@
-<?php //netteCache[01]000373a:2:{s:4:"time";s:21:"0.33329100 1331290801";s:9:"callbacks";a:2:{i:0;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:9:"checkFile";}i:1;s:51:"C:\wamp\www\radiozurnal\app\templates\@layout.latte";i:2;i:1331244760;}i:1;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:10:"checkConst";}i:1;s:25:"Nette\Framework::REVISION";i:2;s:30:"52832ac released on 2012-02-24";}}}?><?php
+<?php //netteCache[01]000373a:2:{s:4:"time";s:21:"0.43145600 1331846825";s:9:"callbacks";a:2:{i:0;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:9:"checkFile";}i:1;s:51:"C:\wamp\www\radiozurnal\app\templates\@layout.latte";i:2;i:1331846806;}i:1;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:10:"checkConst";}i:1;s:25:"Nette\Framework::REVISION";i:2;s:30:"52832ac released on 2012-02-24";}}}?><?php
 
 // source file: C:\wamp\www\radiozurnal\app\templates\@layout.latte
 
 ?><?php
 // prolog Nette\Latte\Macros\CoreMacros
-list($_l, $_g) = Nette\Latte\Macros\CoreMacros::initRuntime($template, 'p9ssoim929')
+list($_l, $_g) = Nette\Latte\Macros\CoreMacros::initRuntime($template, '1t48m4xzh6')
 ;
 // prolog Nette\Latte\Macros\UIMacros
 //
 // block head
 //
-if (!function_exists($_l->blocks['head'][] = '_lbcec8773d56_head')) { function _lbcec8773d56_head($_l, $_args) { extract($_args)
+if (!function_exists($_l->blocks['head'][] = '_lb7abe9725cd_head')) { function _lb7abe9725cd_head($_l, $_args) { extract($_args)
 ;
 }}
 
@@ -45,7 +45,7 @@ if ($_l->extends) {
 
         <title>Playlist Radiožurnálu</title>
 
-        <link rel="stylesheet" media="screen,projection,tv" href="<?php echo htmlSpecialChars($basePath) ?>/css/screen.css" type="text/css" />
+        <link rel="stylesheet" media="all" href="<?php echo htmlSpecialChars($basePath) ?>/css/screen.css" type="text/css" />
         <link rel="stylesheet" media="print" href="<?php echo htmlSpecialChars($basePath) ?>/css/print.css" type="text/css" />
         <link rel="stylesheet" media="" href="<?php echo htmlSpecialChars($basePath) ?>/css/bootstrap.css" type="text/css" />
         <link rel="stylesheet" media="" href="<?php echo htmlSpecialChars($basePath) ?>/css/bootstrap-responsive.min.css" type="text/css" />
@@ -57,17 +57,19 @@ if ($_l->extends) {
         <script type="text/javascript" src="<?php echo htmlSpecialChars($basePath) ?>/js/netteForms.js"></script>
         <script type="text/javascript" src="<?php echo htmlSpecialChars($basePath) ?>/js/jquery.nette.js"></script>
         <script type="text/javascript" src="<?php echo htmlSpecialChars($basePath) ?>/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="<?php echo htmlSpecialChars($basePath) ?>/js/jwerty.js"></script>
 
-<script type="text/javascript">
-/* <![CDATA[ */
-    (function() {
-        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
-        s.type = 'text/javascript';
-        s.async = true;
-        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
-        t.parentNode.insertBefore(s, t);
-    })();
-/* ]]> */</script>
+        <script type="text/javascript">
+        /* <![CDATA[ */
+            (function() {
+                var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+                s.type = 'text/javascript';
+                s.async = true;
+                s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+                t.parentNode.insertBefore(s, t);
+            })();        
+            
+        /* ]]> */</script>
 
 	<?php if ($_l->extends) { ob_end_clean(); return Nette\Latte\Macros\CoreMacros::includeTemplate($_l->extends, get_defined_vars(), $template)->render(); }
 call_user_func(reset($_l->blocks['head']), $_l, get_defined_vars())  ?>
@@ -78,13 +80,33 @@ call_user_func(reset($_l->blocks['head']), $_l, get_defined_vars())  ?>
         <script> document.body.className+=' js' </script>
 
         <div class="container">
-            <div class="page-header">
+            <div class="page-headerx row">
+                
+                <div class="span5">                
+                    <h1>playlist Radiožurnálu</h1>
+                    <p>Český rozhlas 1 - Radiožurnál</p>
+                </div>
 
-<span class="fr"><a class="FlattrButton" style="display:none;" href="http://radiozurnal.3tecky.cz"></a>
-<noscript><a href="http://flattr.com/thing/563364/Playlist-Radiozurnalu" target="_blank">
-<img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript></span>
+                <div class="span6">
 
-                <h1>Playlist RadioŽurnálu</h1>
+                    <ul class="nav nav-pills">
+                        <li class="">
+                            <a>Zobrazení: <?php echo Nette\Templating\Helpers::escapeHtml($presenter->linkCurrent, ENT_NOQUOTES) ?></a>
+                        </li>
+                        <li<?php if ($_l->tmp = array_filter(array($presenter->isLinkCurrent('Playlist:default') ? 'active':null))) echo ' class="' . htmlSpecialChars(implode(" ", array_unique($_l->tmp))) . '"' ?>
+><a href="<?php echo htmlSpecialChars($_control->link("playlist:default")) ?>">úvodní strana</a></li>
+                        <li<?php if ($_l->tmp = array_filter(array($presenter->isLinkCurrent('Playlist:statsByYear')?'active':null))) echo ' class="' . htmlSpecialChars(implode(" ", array_unique($_l->tmp))) . '"' ?>
+><a href="<?php echo htmlSpecialChars($_control->link("playlist:statsByYear")) ?>
+">songy podle roků</a></li>
+                        <!--li><a href="#">podle hratelnosti</a></li-->
+                    </ul>                
+                </div>
+                
+                <div class="span1 ac">
+                <span class=""><a class="FlattrButton" style="display:none;" href="http://radiozurnal.3tecky.cz"></a>
+                    <noscript><a href="http://flattr.com/thing/563364/Playlist-Radiozurnalu" target="_blank">
+                        <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript></span>                    
+                </div>                
             </div>
 
 <?php $iterations = 0; foreach ($flashes as $flash): ?>            <div class="flash <?php echo htmlSpecialChars($flash->type) ?>
@@ -94,7 +116,7 @@ call_user_func(reset($_l->blocks['head']), $_l, get_defined_vars())  ?>
 
 <?php Nette\Latte\Macros\UIMacros::callBlock($_l, 'content', $template->getParameters()) ?>
         </div>
-        
+
         <script type="text/javascript">
 
           var _gaq = _gaq || [];

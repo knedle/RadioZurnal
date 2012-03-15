@@ -1,16 +1,16 @@
-<?php //netteCache[01]000382a:2:{s:4:"time";s:21:"0.10671300 1331166353";s:9:"callbacks";a:2:{i:0;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:9:"checkFile";}i:1;s:60:"C:\wamp\www\radiozurnal\app\templates\Playlist\default.latte";i:2;i:1331166351;}i:1;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:10:"checkConst";}i:1;s:25:"Nette\Framework::REVISION";i:2;s:30:"52832ac released on 2012-02-24";}}}?><?php
+<?php //netteCache[01]000382a:2:{s:4:"time";s:21:"0.99702300 1331846904";s:9:"callbacks";a:2:{i:0;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:9:"checkFile";}i:1;s:60:"C:\wamp\www\radiozurnal\app\templates\Playlist\default.latte";i:2;i:1331846901;}i:1;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:10:"checkConst";}i:1;s:25:"Nette\Framework::REVISION";i:2;s:30:"52832ac released on 2012-02-24";}}}?><?php
 
 // source file: C:\wamp\www\radiozurnal\app\templates\Playlist\default.latte
 
 ?><?php
 // prolog Nette\Latte\Macros\CoreMacros
-list($_l, $_g) = Nette\Latte\Macros\CoreMacros::initRuntime($template, 'wz47h3ktad')
+list($_l, $_g) = Nette\Latte\Macros\CoreMacros::initRuntime($template, 'r7nmrnhywb')
 ;
 // prolog Nette\Latte\Macros\UIMacros
 //
 // block content
 //
-if (!function_exists($_l->blocks['content'][] = '_lbb946d4dd61_content')) { function _lbb946d4dd61_content($_l, $_args) { extract($_args)
+if (!function_exists($_l->blocks['content'][] = '_lb0221f41d54_content')) { function _lb0221f41d54_content($_l, $_args) { extract($_args)
 ;Nette\Latte\Macros\FormMacros::renderFormBegin($form = $_form = $_control["searchForm"], array('class' => "ac ajaxSubmit")) ?>
         <?php echo $_form["keyword"]->getControl()->addAttributes(array()) ?>
 
@@ -93,7 +93,7 @@ if (!function_exists($_l->blocks['content'][] = '_lbb946d4dd61_content')) { func
 //
 // block _addButoon
 //
-if (!function_exists($_l->blocks['_addButoon'][] = '_lbaffce9bff8__addButoon')) { function _lbaffce9bff8__addButoon($_l, $_args) { extract($_args); $_control->validateControl('addButoon')
+if (!function_exists($_l->blocks['_addButoon'][] = '_lbfcb98a92b0__addButoon')) { function _lbfcb98a92b0__addButoon($_l, $_args) { extract($_args); $_control->validateControl('addButoon')
 ?><a class="btn ajax" href="<?php echo htmlSpecialChars($_control->link("addNew!")) ?>
 "><i class="icon-plus-sign"></i> Add</a>
 <?php
@@ -102,7 +102,7 @@ if (!function_exists($_l->blocks['_addButoon'][] = '_lbaffce9bff8__addButoon')) 
 //
 // block _list
 //
-if (!function_exists($_l->blocks['_list'][] = '_lbb60a8c93b8__list')) { function _lbb60a8c93b8__list($_l, $_args) { extract($_args); $_control->validateControl('list')
+if (!function_exists($_l->blocks['_list'][] = '_lb841c369af0__list')) { function _lb841c369af0__list($_l, $_args) { extract($_args); $_control->validateControl('list')
 ?>
 <table class="table table-striped table-bordered table-condensed">
     <thead>
@@ -135,7 +135,7 @@ if (!function_exists($_l->blocks['_list'][] = '_lbb60a8c93b8__list')) { function
                 <i class="icon-chevron-up icon-gray" title="seřazeno vzestupně"></i>
 <?php endif ;endif ?>
             </th>
-            <th class="ac">
+            <th class="ac span1">
                 rok
 <?php if ($showSort && ($sortBy != 'year-asc')): if (preg_match('/year/', $sortBy)): ?>
                 <i class="icon-chevron-down icon-gray"></i>
@@ -149,7 +149,7 @@ if (!function_exists($_l->blocks['_list'][] = '_lbb60a8c93b8__list')) { function
                 <i class="icon-chevron-up icon-gray"></i>
 <?php endif ;endif ?>
             </th>
-            <th class="ac">
+            <th class="ac span2">
                 info
 <?php if ($showSort && ($sortBy != 'created-at-asc')): if (preg_match('/created-at/', $sortBy)): ?>
                 <i class="icon-chevron-down icon-gray"></i>
@@ -166,7 +166,7 @@ if (!function_exists($_l->blocks['_list'][] = '_lbb60a8c93b8__list')) { function
             <th class="ac">více...</th>
         </tr>
     </thead>
-
+    
 <?php $pocet = count($interpretSongs) ?>
 
 <?php if ($interpretSongs): ?>    <tbody>
@@ -175,7 +175,7 @@ if (!function_exists($_l->blocks['_list'][] = '_lbb60a8c93b8__list')) { function
 " data-column="name" data-table="interpret"><?php echo Nette\Templating\Helpers::escapeHtml($interpretSong->interpret->name, ENT_NOQUOTES) ?></td>
             <td data-id="<?php echo htmlSpecialChars($interpretSong->song->id) ?>
 " data-column="title" data-table="song"><?php echo Nette\Templating\Helpers::escapeHtml($interpretSong->song->title, ENT_NOQUOTES) ?></td>
-            <td class="ac" data-column="year"><?php echo Nette\Templating\Helpers::escapeHtml(empty($interpretSong->year) ? "" : $interpretSong->year, ENT_NOQUOTES) ?></td>
+            <td class="ac" data-column="year"><?php echo Nette\Templating\Helpers::escapeHtml($interpretSong->year == "0000" ? "" : $interpretSong->year, ENT_NOQUOTES) ?></td>
             <td class="ac">
 <?php if ((date('Y-m-d', strtotime($interpretSong->created_at)) == date('Y-m-d'))): ?>
                 <span class="label label-success">Dnes přidána</span>
@@ -196,7 +196,9 @@ if (!function_exists($_l->blocks['_list'][] = '_lbb60a8c93b8__list')) { function
             </td>
             <td class="ac">
                 <a rel="tooltip" title="hledej na youtube" href="http://www.youtube.com/results?search_query=<?php echo htmlSpecialChars($interpretSong->interpret->name) ?>
- <?php echo htmlSpecialChars($interpretSong->song->title) ?>"><img src="http://s.ytimg.com/yt/img/creators_corner/YouTube/youtube_24x24.png" alt="Přihlaste se k odběru mého kanálu na YouTube" /></a>
+ <?php echo htmlSpecialChars($interpretSong->song->title) ?>"><img src="<?php echo htmlSpecialChars($basePath) ?>/images/youtube-24x24.png" alt="hledej na youtube" /></a>
+                <a rel="tooltip" title="hledej na wikipedii" href="http://www.google.cz/search?q=wikipedia <?php echo htmlSpecialChars($interpretSong->interpret->name) ?>
+ <?php echo htmlSpecialChars($interpretSong->song->title) ?>"><img src="<?php echo htmlSpecialChars($basePath) ?>/images/wikipedia-24x24.png" alt="hledej na wikipedii" /></a>
             </td>
         </tr>
 <?php $iterations++; endforeach ?>
@@ -207,7 +209,7 @@ if (!function_exists($_l->blocks['_list'][] = '_lbb60a8c93b8__list')) { function
 <?php if (count($iterations)): ?>
         <tr>        
 
-            <td colspan="4">
+            <td colspan="5">
                 Odpovídá filtraci: <?php echo Nette\Templating\Helpers::escapeHtml($totalCount, ENT_NOQUOTES) ?>
  / Zobrazeno: <?php echo Nette\Templating\Helpers::escapeHtml($iterations, ENT_NOQUOTES) ?>
 
@@ -215,7 +217,7 @@ if (!function_exists($_l->blocks['_list'][] = '_lbb60a8c93b8__list')) { function
         </tr>
 <?php endif ?>
         <tr>    
-            <td colspan="4" class="ac">
+            <td colspan="5" class="ac">
 <?php if (count($iterations)): $_ctrl = $_control->getComponent("vp"); if ($_ctrl instanceof Nette\Application\UI\IRenderable) $_ctrl->validateControl(); $_ctrl->render() ;else: ?>
                 <b>Na základě filtrace nebyla nalezena žádná data...</b>
 <?php endif ?>
@@ -230,7 +232,7 @@ if (!function_exists($_l->blocks['_list'][] = '_lbb60a8c93b8__list')) { function
 //
 // block _addForm
 //
-if (!function_exists($_l->blocks['_addForm'][] = '_lbc3d6ebeda8__addForm')) { function _lbc3d6ebeda8__addForm($_l, $_args) { extract($_args); $_control->validateControl('addForm')
+if (!function_exists($_l->blocks['_addForm'][] = '_lbd1f65d98f5__addForm')) { function _lbd1f65d98f5__addForm($_l, $_args) { extract($_args); $_control->validateControl('addForm')
 ;if ((!count($interpretSongs) || !empty($showAddForm) )): Nette\Latte\Macros\FormMacros::renderFormBegin($form = $_form = $_control["songSaveForm"], array('class' => "ac")) ?>
             <?php echo $_form["interpret"]->getControl()->addAttributes(array()) ?>
 
@@ -248,7 +250,7 @@ if (!function_exists($_l->blocks['_addForm'][] = '_lbc3d6ebeda8__addForm')) { fu
 //
 // block head
 //
-if (!function_exists($_l->blocks['head'][] = '_lb3a9c71de85_head')) { function _lb3a9c71de85_head($_l, $_args) { extract($_args)
+if (!function_exists($_l->blocks['head'][] = '_lb669fecf82b_head')) { function _lb669fecf82b_head($_l, $_args) { extract($_args)
 ?><style>
 
 </style>
@@ -268,12 +270,14 @@ if (!function_exists($_l->blocks['head'][] = '_lb3a9c71de85_head')) { function _
                     select: function( event, ui ) { }
             });  
         }, 500);        
-                
+          
+        /*  
         $('input[name=keyword]').keyup(function(){
            if ($(this).val().length > 2) {
                $(this).closest('form').submit();
            }
         });
+        */
         
         
         $("form.ajaxSubmit").submit(function () {
@@ -316,6 +320,7 @@ if (!function_exists($_l->blocks['head'][] = '_lb3a9c71de85_head')) { function _
                 success: function(data){                   
                     if (data) {
                         var modal = $('#myModal');
+                        var input = null;
                         $('[name=primaryKey]', $(modal)).val(data.primaryKey);
                         $('[name=table]', $(modal)).val(data.table);
                         $('[name=column]', $(modal)).val(data.column);
@@ -323,17 +328,37 @@ if (!function_exists($_l->blocks['head'][] = '_lb3a9c71de85_head')) { function _
                         $('.selectOne', $(modal)).val(data.value).each(function(){
                             if ($(this).attr('data-type') == data.type) {
                                $(this).removeAttr('disabled').show();
+                               input = this;
                             }
                             else {
                                 $(this).attr('disabled', 'disabled').hide();
                             }
                         });                    
-                        $('#myModal').modal('toggle');                    
+                        $('#myModal').modal('toggle');
+
+
                     }
                 }
             });
 
         });
+        
+        $('#myModal').on('shown', function () {
+            $('.selectOne:first:visible', $(this)).focus().select();
+        });
+        
+        jwerty.key('ctrl+i', function () {
+            console.log('jump to interpret add input');
+            $('.addInterpret').focus();
+        });
+
+        jwerty.key('ctrl+alt+i', function () {
+            console.log('copy first interpret name to interpret add input interpret and jump to song add input');
+            var interpret = $('[data-table=interpret]:first').text();
+            console.log(interpret);
+            $('.addInterpret').val(interpret);
+            $('.addSong').focus();
+        });            
         
     });
 </script>

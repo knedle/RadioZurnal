@@ -53,6 +53,25 @@ class PlaylistPresenter extends BasePresenter {
         $this->template->sortBy = Strings::webalize($order);
         $this->template->interpretSongs = $dataSource;
     }
+    
+    public function renderStatsByYear() {
+        $playlist = $this->getService('playlists');
+        
+        $totalCount = $playlist->interpretSongs->count();        
+                
+        $dataSource = $playlist->loadAgregation();        
+        
+        $yearCountDataSource = clone $dataSource;
+        
+        $yearCount = $yearCountDataSource->fetchPairs("year","yearCount");        
+        
+        $this->template->interpretSongs = $this->getService('interpretSongs');
+        $this->template->showSort = false;        
+        $this->template->summaryList = $yearCount;        
+        $this->template->maxYearCount = max($yearCount);
+        $this->template->totalCount = $totalCount;
+        $this->template->finalCount = $this->finalCount; // cilovy pocet
+    }    
 
     /**
      *
@@ -82,7 +101,7 @@ class PlaylistPresenter extends BasePresenter {
             if (!empty($this->session->keyword)) {
                 $data = $playlist->search($this->session->keyword);
             } else {
-                $data = $playlist->interpretSongs->where('0');
+                $data = $playlist->interpretSongs; //->where('0');
             }
             if ($this->isAjax()) {
                 $this->template->interpretSongs = $data->order('created_at DESC');
@@ -123,8 +142,8 @@ class PlaylistPresenter extends BasePresenter {
 
     protected function createComponentSongSaveForm() {
         $form = new Form;
-        $form->addText('interpret', 'Interpret:')->setAttribute('placeholder', 'interpret')->setAttribute('class', 'span4 addInterpret');
-        $form->addText('song', 'Song:')->setAttribute('placeholder', 'song')->setAttribute('class', 'span4 addSong');
+        $form->addText('interpret', 'Interpret:')->setAttribute('placeholder', 'interpret (ctrl + i = set focus)')->setAttribute('class', 'span4 addInterpret');
+        $form->addText('song', 'Song:')->setAttribute('placeholder', 'song (ctrl + alt + i = copy interpret and set focus)')->setAttribute('class', 'span4 addSong');
         $form->addText('year', 'Rok:')->setAttribute('placeholder', 'rok')->setAttribute('class', 'span1');
         $form->addSubmit('save', 'ulož')->setAttribute('class', 'span2 btn btn-primary');
         $form->addSubmit('cancel', 'zruš ukládání')->setAttribute('class', 'span2 btn');
@@ -174,22 +193,6 @@ class PlaylistPresenter extends BasePresenter {
         } else {
             $this->redirect('this');
         }
-    }
-
-    public function songSaveFormSubmitted(Form $form) {
-        // volá se po odeslání formuláře
-        if ($form['save']->isSubmittedBy()) {
-            $values = $form->getValues();
-            $playlist = $this->getService('playlists');
-            $saved = $playlist->save($values);
-
-            if ($saved) {
-                $this->flashMessage('Nový záznam byl v pořádku uložen...');
-            } else {
-                $this->flashMessage('Nový záznam songu a intepreta nebyl uložen...');
-            }
-        }
-        $this->redirect('default');
     }
 
     /**
@@ -291,6 +294,22 @@ class PlaylistPresenter extends BasePresenter {
             }
         }
         $this->redirect('default');        
+    }
+    
+    public function songSaveFormSubmitted(Form $form) {
+        // volá se po odeslání formuláře
+        if ($form['save']->isSubmittedBy()) {
+            $values = $form->getValues();
+            $playlist = $this->getService('playlists');
+            $saved = $playlist->save($values);
+
+            if ($saved) {
+                $this->flashMessage('Nový záznam byl v pořádku uložen...');
+            } else {
+                $this->flashMessage('Nový záznam songu a intepreta nebyl uložen...');
+            }
+        }
+        $this->redirect('default');
     }
 
 }
