@@ -23,10 +23,10 @@ use Nette;
 class Token extends Nette\Object
 {
 	const TEXT = 'text',
-		MACRO_TAG = 'macroTag',
-		HTML_TAG_BEGIN = 'htmlTagBegin',
-		HTML_TAG_END = 'htmlTagEnd',
-		HTML_ATTRIBUTE = 'htmlAttribute',
+		MACRO = 'macro',
+		TAG_BEGIN = 'tag_begin',
+		TAG_END = 'tag_end',
+		ATTRIBUTE = 'attribute',
 		COMMENT = 'comment';
 
 	/** @var int */
@@ -38,16 +38,16 @@ class Token extends Nette\Object
 	/** @var int */
 	public $line;
 
-	/** @var string  MACRO_TAG, HTML_TAG_BEGIN, HTML_ATTRIBUTE */
+	/** @var string  MACRO, TAG_BEGIN, ATTRIBUTE */
 	public $name;
 
-	/** @var string  MACRO_TAG, HTML_ATTRIBUTE */
+	/** @var string  MACRO, ATTRIBUTE */
 	public $value;
 
-	/** @var string  MACRO_TAG */
+	/** @var string  MACRO */
 	public $modifiers;
 
-	/** @var bool  HTML_TAG_BEGIN */
+	/** @var bool  TAG_BEGIN */
 	public $closing;
 
 }

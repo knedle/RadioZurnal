@@ -33,7 +33,7 @@ class PhpWriter extends Nette\Object
 
 
 
-	public static function using(MacroNode $node, $compiler = NULL)
+	public static function using(MacroNode $node, Compiler $compiler = NULL)
 	{
 		return new static($node->tokenizer, $node->modifiers, $compiler);
 	}
@@ -196,7 +196,7 @@ class PhpWriter extends Nette\Object
 	 */
 	public function formatWord($s)
 	{
-		return (is_numeric($s) || strspn($s, '\'"$') || in_array(strtolower($s), array('true', 'false', 'null')))
+		return (is_numeric($s) || preg_match('#^\\$|[\'"]|^true$|^false$|^null$#i', $s))
 			? $s : '"' . $s . '"';
 	}
 
@@ -205,7 +205,7 @@ class PhpWriter extends Nette\Object
 	/**
 	 * @return bool
 	 */
-	public function canQuote($tokenizer)
+	public function canQuote(MacroTokenizer $tokenizer)
 	{
 		return $tokenizer->isCurrent(MacroTokenizer::T_SYMBOL)
 			&& (!$tokenizer->hasPrev() || $tokenizer->isPrev(',', '(', '[', '=', '=>', ':', '?'))
@@ -287,15 +287,13 @@ class PhpWriter extends Nette\Object
 			switch ($context[0]) {
 			case Compiler::CONTEXT_SINGLE_QUOTED:
 			case Compiler::CONTEXT_DOUBLE_QUOTED:
-			case Compiler::CONTEXT_UNQUOTED:
 				if ($context[1] === Compiler::CONTENT_JS) {
 					$s = "Nette\\Templating\\Helpers::escapeJs($s)";
 				} elseif ($context[1] === Compiler::CONTENT_CSS) {
 					$s = "Nette\\Templating\\Helpers::escapeCss($s)";
 				}
-				$quote = $context[0] === Compiler::CONTEXT_SINGLE_QUOTED ? ', ENT_QUOTES' : '';
-				$s = "htmlSpecialChars($s$quote)";
-				return $context[0] === Compiler::CONTEXT_UNQUOTED ? "'\"' . $s . '\"'" : $s;
+				$quote = $context[0] === Compiler::CONTEXT_DOUBLE_QUOTED ? '' : ', ENT_QUOTES';
+				return "htmlSpecialChars($s$quote)";
 			case Compiler::CONTEXT_COMMENT:
 				return "Nette\\Templating\\Helpers::escapeHtmlComment($s)";
 			case Compiler::CONTENT_JS:

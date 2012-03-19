@@ -78,12 +78,8 @@ class Logger extends Nette\Object
 	 */
 	private static function defaultMailer($message, $email)
 	{
-		$host = '';
-		foreach (array('HTTP_HOST','SERVER_NAME', 'HOSTNAME') as $item) {
-			if (isset($_SERVER[$item])) {
-				$host = $_SERVER[$item]; break;
-			}
-		}
+		$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] :
+				(isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '');
 
 		$parts = str_replace(
 			array("\r\n", "\n"),

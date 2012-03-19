@@ -53,30 +53,38 @@
 
         <div class="container">
             <div class="page-headerx row">
-                
-                <div class="span5">                
+
+                <div class="span11">                
                     <h1>playlist Radiožurnálu</h1>
                     <p>Český rozhlas 1 - Radiožurnál</p>
                 </div>
 
-                <div class="span6">
-
-                    <ul class="nav nav-pills">
-                        <li class="">
-                            <a>Zobrazení: {$presenter->linkCurrent}</a>
-                        </li>
-                        <li n:class="$presenter->isLinkCurrent('Playlist:default') ? active"><a n:href="playlist:default">úvodní strana</a></li>
-                        <li n:class="$presenter->isLinkCurrent('Playlist:statsByYear')?active"><a n:href="playlist:statsByYear">songy podle roků</a></li>
-                        <!--li><a href="#">podle hratelnosti</a></li-->
-                    </ul>                
-                </div>
-                
                 <div class="span1 ac">
-                <span class=""><a class="FlattrButton" style="display:none;" href="http://radiozurnal.3tecky.cz"></a>
-                    <noscript><a href="http://flattr.com/thing/563364/Playlist-Radiozurnalu" target="_blank">
-                        <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript></span>                    
+                    <span class=""><a class="FlattrButton" style="display:none;" href="http://radiozurnal.3tecky.cz"></a>
+                        <noscript><a href="http://flattr.com/thing/563364/Playlist-Radiozurnalu" target="_blank">
+                            <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript></span>                    
                 </div>                
             </div>
+
+            {form searchForm class => "ac ajaxxSubmit"}
+                {input keyword}
+                {input find}    
+                {snippet addButoon span}
+                    <a n:href="addNew!" class="btn ajax"><i class="icon-plus-sign"></i> Add</a>
+                {/snippet}
+            {/form searchForm}
+
+            <div class="navbar">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <ul class="nav">
+                            <li n:class="$presenter->isLinkCurrent('Playlist:default') ? active"><a n:href="playlist:default">úvodní strana</a></li>
+                            <li n:class="$presenter->isLinkCurrent('Playlist:statsByYear')?active"><a n:href="playlist:statsByYear">songy podle roků</a></li>
+                            <li n:class="$presenter->isLinkCurrent('Playlist:today')?active"><a n:href="playlist:today">hrálo dnes</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>            
 
             <div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>            
 

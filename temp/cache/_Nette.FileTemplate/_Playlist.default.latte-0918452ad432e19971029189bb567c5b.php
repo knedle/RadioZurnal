@@ -1,26 +1,23 @@
-<?php //netteCache[01]000382a:2:{s:4:"time";s:21:"0.99702300 1331846904";s:9:"callbacks";a:2:{i:0;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:9:"checkFile";}i:1;s:60:"C:\wamp\www\radiozurnal\app\templates\Playlist\default.latte";i:2;i:1331846901;}i:1;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:10:"checkConst";}i:1;s:25:"Nette\Framework::REVISION";i:2;s:30:"52832ac released on 2012-02-24";}}}?><?php
+<?php //netteCache[01]000382a:2:{s:4:"time";s:21:"0.24473100 1332192040";s:9:"callbacks";a:2:{i:0;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:9:"checkFile";}i:1;s:60:"C:\wamp\www\radiozurnal\app\templates\Playlist\default.latte";i:2;i:1332191506;}i:1;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:10:"checkConst";}i:1;s:25:"Nette\Framework::REVISION";i:2;s:30:"94abcaa released on 2012-02-29";}}}?><?php
 
 // source file: C:\wamp\www\radiozurnal\app\templates\Playlist\default.latte
 
 ?><?php
 // prolog Nette\Latte\Macros\CoreMacros
-list($_l, $_g) = Nette\Latte\Macros\CoreMacros::initRuntime($template, 'r7nmrnhywb')
+list($_l, $_g) = Nette\Latte\Macros\CoreMacros::initRuntime($template, 'dsz3e76g8o')
 ;
 // prolog Nette\Latte\Macros\UIMacros
 //
 // block content
 //
-if (!function_exists($_l->blocks['content'][] = '_lb0221f41d54_content')) { function _lb0221f41d54_content($_l, $_args) { extract($_args)
-;Nette\Latte\Macros\FormMacros::renderFormBegin($form = $_form = $_control["searchForm"], array('class' => "ac ajaxSubmit")) ?>
-        <?php echo $_form["keyword"]->getControl()->addAttributes(array()) ?>
-
-        <?php echo $_form["find"]->getControl()->addAttributes(array()) ?>
-
-<span id="<?php echo $_control->getSnippetId('addButoon') ?>"><?php call_user_func(reset($_l->blocks['_addButoon']), $_l, $template->getParameters()) ?>
-</span><?php Nette\Latte\Macros\FormMacros::renderFormEnd($_form) ?>
-
-<hr />
-
+if (!function_exists($_l->blocks['content'][] = '_lbaff6be31cf_content')) { function _lbaff6be31cf_content($_l, $_args) { extract($_args)
+;if (!empty($today)): ?><div class="alert alert-block">
+    <h4 class="alert-heading">Upozornění:</h4>
+    <p>Tento seznam 'hrálo dnes' je tvořen návštěvníky tohoto webu - jsou to skladby, které byly dnešního dne přidány do databáze
+    nebo byly označeny kliknutím na ikonku 'právě hraje'.<br />
+    Vzhledem k tomu, že tyto akce nejsou pod žádnou kontrolou, nemusí být tento seznam pravdivý.</p>
+</div>
+<?php endif ?>
 
 
 <div id="<?php echo $_control->getSnippetId('list') ?>"><?php call_user_func(reset($_l->blocks['_list']), $_l, $template->getParameters()) ?>
@@ -91,20 +88,10 @@ if (!function_exists($_l->blocks['content'][] = '_lb0221f41d54_content')) { func
 }}
 
 //
-// block _addButoon
-//
-if (!function_exists($_l->blocks['_addButoon'][] = '_lbfcb98a92b0__addButoon')) { function _lbfcb98a92b0__addButoon($_l, $_args) { extract($_args); $_control->validateControl('addButoon')
-?><a class="btn ajax" href="<?php echo htmlSpecialChars($_control->link("addNew!")) ?>
-"><i class="icon-plus-sign"></i> Add</a>
-<?php
-}}
-
-//
 // block _list
 //
-if (!function_exists($_l->blocks['_list'][] = '_lb841c369af0__list')) { function _lb841c369af0__list($_l, $_args) { extract($_args); $_control->validateControl('list')
-?>
-<table class="table table-striped table-bordered table-condensed">
+if (!function_exists($_l->blocks['_list'][] = '_lb5cb2e621e4__list')) { function _lb5cb2e621e4__list($_l, $_args) { extract($_args); $_control->validateControl('list')
+?><table class="table table-striped table-bordered table-condensed">
     <thead>
         <tr style="background-color: #ddd">
             <th>
@@ -166,8 +153,8 @@ if (!function_exists($_l->blocks['_list'][] = '_lb841c369af0__list')) { function
             <th class="ac">více...</th>
         </tr>
     </thead>
-    
-<?php $pocet = count($interpretSongs) ?>
+
+<?php $pocet = $interpretSongs->count('interpret_song.created_at') ?>
 
 <?php if ($interpretSongs): ?>    <tbody>
 <?php $iterations = 0; foreach ($interpretSongs as $interpretSong): ?>        <tr data-id='<?php echo json_encode(array('song_id'=>$interpretSong->song_id,'interpret_id'=>$interpretSong->interpret_id)) ?>' data-table="interpret_song">
@@ -232,7 +219,7 @@ if (!function_exists($_l->blocks['_list'][] = '_lb841c369af0__list')) { function
 //
 // block _addForm
 //
-if (!function_exists($_l->blocks['_addForm'][] = '_lbd1f65d98f5__addForm')) { function _lbd1f65d98f5__addForm($_l, $_args) { extract($_args); $_control->validateControl('addForm')
+if (!function_exists($_l->blocks['_addForm'][] = '_lbdc410ff13f__addForm')) { function _lbdc410ff13f__addForm($_l, $_args) { extract($_args); $_control->validateControl('addForm')
 ;if ((!count($interpretSongs) || !empty($showAddForm) )): Nette\Latte\Macros\FormMacros::renderFormBegin($form = $_form = $_control["songSaveForm"], array('class' => "ac")) ?>
             <?php echo $_form["interpret"]->getControl()->addAttributes(array()) ?>
 
@@ -250,7 +237,7 @@ if (!function_exists($_l->blocks['_addForm'][] = '_lbd1f65d98f5__addForm')) { fu
 //
 // block head
 //
-if (!function_exists($_l->blocks['head'][] = '_lb669fecf82b_head')) { function _lb669fecf82b_head($_l, $_args) { extract($_args)
+if (!function_exists($_l->blocks['head'][] = '_lb1ac7425af1_head')) { function _lb1ac7425af1_head($_l, $_args) { extract($_args)
 ?><style>
 
 </style>
@@ -384,7 +371,9 @@ if ($_l->extends) {
 //
 // main template
 //
-if ($_l->extends) { ob_end_clean(); return Nette\Latte\Macros\CoreMacros::includeTemplate($_l->extends, get_defined_vars(), $template)->render(); }
+?>
+
+<?php if ($_l->extends) { ob_end_clean(); return Nette\Latte\Macros\CoreMacros::includeTemplate($_l->extends, get_defined_vars(), $template)->render(); }
 call_user_func(reset($_l->blocks['content']), $_l, get_defined_vars())  ?>
 
 

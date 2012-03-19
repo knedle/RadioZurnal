@@ -1,17 +1,26 @@
-<?php //netteCache[01]000373a:2:{s:4:"time";s:21:"0.43145600 1331846825";s:9:"callbacks";a:2:{i:0;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:9:"checkFile";}i:1;s:51:"C:\wamp\www\radiozurnal\app\templates\@layout.latte";i:2;i:1331846806;}i:1;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:10:"checkConst";}i:1;s:25:"Nette\Framework::REVISION";i:2;s:30:"52832ac released on 2012-02-24";}}}?><?php
+<?php //netteCache[01]000373a:2:{s:4:"time";s:21:"0.98665100 1332192126";s:9:"callbacks";a:2:{i:0;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:9:"checkFile";}i:1;s:51:"C:\wamp\www\radiozurnal\app\templates\@layout.latte";i:2;i:1332192124;}i:1;a:3:{i:0;a:2:{i:0;s:19:"Nette\Caching\Cache";i:1;s:10:"checkConst";}i:1;s:25:"Nette\Framework::REVISION";i:2;s:30:"94abcaa released on 2012-02-29";}}}?><?php
 
 // source file: C:\wamp\www\radiozurnal\app\templates\@layout.latte
 
 ?><?php
 // prolog Nette\Latte\Macros\CoreMacros
-list($_l, $_g) = Nette\Latte\Macros\CoreMacros::initRuntime($template, '1t48m4xzh6')
+list($_l, $_g) = Nette\Latte\Macros\CoreMacros::initRuntime($template, '6w6g2pwuwc')
 ;
 // prolog Nette\Latte\Macros\UIMacros
 //
 // block head
 //
-if (!function_exists($_l->blocks['head'][] = '_lb7abe9725cd_head')) { function _lb7abe9725cd_head($_l, $_args) { extract($_args)
+if (!function_exists($_l->blocks['head'][] = '_lb28f95f7d40_head')) { function _lb28f95f7d40_head($_l, $_args) { extract($_args)
 ;
+}}
+
+//
+// block _addButoon
+//
+if (!function_exists($_l->blocks['_addButoon'][] = '_lb9e7e658809__addButoon')) { function _lb9e7e658809__addButoon($_l, $_args) { extract($_args); $_control->validateControl('addButoon')
+?>                    <a class="btn ajax" href="<?php echo htmlSpecialChars($_control->link("addNew!")) ?>
+"><i class="icon-plus-sign"></i> Add</a>
+<?php
 }}
 
 //
@@ -81,33 +90,42 @@ call_user_func(reset($_l->blocks['head']), $_l, get_defined_vars())  ?>
 
         <div class="container">
             <div class="page-headerx row">
-                
-                <div class="span5">                
+
+                <div class="span11">                
                     <h1>playlist Radiožurnálu</h1>
                     <p>Český rozhlas 1 - Radiožurnál</p>
                 </div>
 
-                <div class="span6">
-
-                    <ul class="nav nav-pills">
-                        <li class="">
-                            <a>Zobrazení: <?php echo Nette\Templating\Helpers::escapeHtml($presenter->linkCurrent, ENT_NOQUOTES) ?></a>
-                        </li>
-                        <li<?php if ($_l->tmp = array_filter(array($presenter->isLinkCurrent('Playlist:default') ? 'active':null))) echo ' class="' . htmlSpecialChars(implode(" ", array_unique($_l->tmp))) . '"' ?>
-><a href="<?php echo htmlSpecialChars($_control->link("playlist:default")) ?>">úvodní strana</a></li>
-                        <li<?php if ($_l->tmp = array_filter(array($presenter->isLinkCurrent('Playlist:statsByYear')?'active':null))) echo ' class="' . htmlSpecialChars(implode(" ", array_unique($_l->tmp))) . '"' ?>
-><a href="<?php echo htmlSpecialChars($_control->link("playlist:statsByYear")) ?>
-">songy podle roků</a></li>
-                        <!--li><a href="#">podle hratelnosti</a></li-->
-                    </ul>                
-                </div>
-                
                 <div class="span1 ac">
-                <span class=""><a class="FlattrButton" style="display:none;" href="http://radiozurnal.3tecky.cz"></a>
-                    <noscript><a href="http://flattr.com/thing/563364/Playlist-Radiozurnalu" target="_blank">
-                        <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript></span>                    
+                    <span class=""><a class="FlattrButton" style="display:none;" href="http://radiozurnal.3tecky.cz"></a>
+                        <noscript><a href="http://flattr.com/thing/563364/Playlist-Radiozurnalu" target="_blank">
+                            <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript></span>                    
                 </div>                
             </div>
+
+<?php Nette\Latte\Macros\FormMacros::renderFormBegin($form = $_form = $_control["searchForm"], array('class' => "ac ajaxxSubmit")) ?>
+                <?php echo $_form["keyword"]->getControl()->addAttributes(array()) ?>
+
+                <?php echo $_form["find"]->getControl()->addAttributes(array()) ?>
+
+<span id="<?php echo $_control->getSnippetId('addButoon') ?>"><?php call_user_func(reset($_l->blocks['_addButoon']), $_l, $template->getParameters()) ?>
+</span><?php Nette\Latte\Macros\FormMacros::renderFormEnd($_form) ?>
+
+            <div class="navbar">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <ul class="nav">
+                            <li<?php if ($_l->tmp = array_filter(array($presenter->isLinkCurrent('Playlist:default') ? 'active':null))) echo ' class="' . htmlSpecialChars(implode(" ", array_unique($_l->tmp))) . '"' ?>
+><a href="<?php echo htmlSpecialChars($_control->link("playlist:default")) ?>">úvodní strana</a></li>
+                            <li<?php if ($_l->tmp = array_filter(array($presenter->isLinkCurrent('Playlist:statsByYear')?'active':null))) echo ' class="' . htmlSpecialChars(implode(" ", array_unique($_l->tmp))) . '"' ?>
+><a href="<?php echo htmlSpecialChars($_control->link("playlist:statsByYear")) ?>
+">songy podle roků</a></li>
+                            <li<?php if ($_l->tmp = array_filter(array($presenter->isLinkCurrent('Playlist:today')?'active':null))) echo ' class="' . htmlSpecialChars(implode(" ", array_unique($_l->tmp))) . '"' ?>
+><a href="<?php echo htmlSpecialChars($_control->link("playlist:today")) ?>">hrálo dnes</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>            
 
 <?php $iterations = 0; foreach ($flashes as $flash): ?>            <div class="flash <?php echo htmlSpecialChars($flash->type) ?>
 "><?php echo Nette\Templating\Helpers::escapeHtml($flash->message, ENT_NOQUOTES) ?></div>            

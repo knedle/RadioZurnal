@@ -2,17 +2,12 @@
 
 {block content}
 
-    {form searchForm class => "ac ajaxSubmit"}
-        {input keyword}
-        {input find}    
-        {snippet addButoon span}
-<a n:href="addNew!" class="btn ajax"><i class="icon-plus-sign"></i> Add</a>
-        {/snippet}
-    {/form searchForm}
-
-<hr>
-
-
+<div n:if="!empty($today)" class="alert alert-block">
+    <h4 class="alert-heading">Upozornění:</h4>
+    <p>Tento seznam 'hrálo dnes' je tvořen návštěvníky tohoto webu - jsou to skladby, které byly dnešního dne přidány do databáze
+    nebo byly označeny kliknutím na ikonku 'právě hraje'.<br/>
+    Vzhledem k tomu, že tyto akce nejsou pod žádnou kontrolou, nemusí být tento seznam pravdivý.</p>
+</div>
 
 {*control songSaveForm*}
 {snippet list}
@@ -79,8 +74,8 @@
             <th class="ac">více...</th>
         </tr>
     </thead>
-    
-    {?$pocet = count($interpretSongs)}       
+
+    {?$pocet = $interpretSongs->count('interpret_song.created_at')}
 
     <tbody n:if="$interpretSongs">
         <tr n:foreach="$interpretSongs as $interpretSong" data-id='{?echo json_encode(array('song_id'=>$interpretSong->song_id,'interpret_id'=>$interpretSong->interpret_id))}' data-table="interpret_song">

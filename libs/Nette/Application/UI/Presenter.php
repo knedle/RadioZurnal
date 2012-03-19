@@ -29,7 +29,7 @@ use Nette,
  * @property-read string $action
  * @property      string $view
  * @property      string $layout
- * @property-read stdClass $payload
+ * @property-read \stdClass $payload
  * @property-read bool $ajax
  * @property-read Nette\Application\Request $lastCreatedRequest
  * @property-read Nette\Http\SessionSection $flashSession
@@ -87,7 +87,7 @@ abstract class Presenter extends Control implements Application\IPresenter
 	/** @var string */
 	private $layout;
 
-	/** @var stdClass */
+	/** @var \stdClass */
 	private $payload;
 
 	/** @var string */
@@ -573,9 +573,9 @@ abstract class Presenter extends Control implements Application\IPresenter
 
 
 	/**
-	 * @return stdClass
+	 * @return \stdClass
 	 */
-	public function getPayload()
+	final public function getPayload()
 	{
 		return $this->payload;
 	}
@@ -963,7 +963,13 @@ abstract class Presenter extends Control implements Application\IPresenter
 
 			$globalState = $this->getGlobalState($destination === 'this' ? NULL : $presenterClass);
 			if ($current && $args) {
-				$current = http_build_query($globalState + $this->params) === http_build_query($args);
+				$tmp = $globalState + $this->params;
+				foreach ($args as $key => $val) {
+					if ((string) $val !== (isset($tmp[$key]) ? (string) $tmp[$key] : '')) {
+						$current = FALSE;
+						break;
+					}
+				}
 			}
 			$args += $globalState;
 		}

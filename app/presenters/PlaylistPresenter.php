@@ -26,6 +26,13 @@ class PlaylistPresenter extends BasePresenter {
 
         $session = $this->getService('session');
         $this->session = $session->getSection('playlist');
+        
+        $playlist = $this->getService('playlists');
+        
+        $totalCount = $playlist->interpretSongs->count();            
+        
+        $this->template->finalCount = $this->finalCount; // cilovy pocet
+        $this->template->totalCount = $totalCount;
     }
 
     public function renderDefault() {
@@ -46,9 +53,7 @@ class PlaylistPresenter extends BasePresenter {
 
         $dataSource->limit($paginator->itemsPerPage, $paginator->offset)->order($order);
 
-        $this->template->limit = $this->perPage;
-        $this->template->finalCount = $this->finalCount; // cilovy pocet
-        $this->template->totalCount = $paginator->itemCount; // pocet v db
+        $this->template->limit = $this->perPage;        
         $this->template->showSort = true;
         $this->template->sortBy = Strings::webalize($order);
         $this->template->interpretSongs = $dataSource;
@@ -57,21 +62,35 @@ class PlaylistPresenter extends BasePresenter {
     public function renderStatsByYear() {
         $playlist = $this->getService('playlists');
         
-        $totalCount = $playlist->interpretSongs->count();        
-                
-        $dataSource = $playlist->loadAgregation();        
+        $totalCount = $playlist->interpretSongs->count();                        
         
-        $yearCountDataSource = clone $dataSource;
+        $yearCountDataSource = $playlist->loadAgregation();       
         
         $yearCount = $yearCountDataSource->fetchPairs("year","yearCount");        
         
         $this->template->interpretSongs = $this->getService('interpretSongs');
         $this->template->showSort = false;        
         $this->template->summaryList = $yearCount;        
-        $this->template->maxYearCount = max($yearCount);
-        $this->template->totalCount = $totalCount;
-        $this->template->finalCount = $this->finalCount; // cilovy pocet
-    }    
+        $this->template->maxYearCount = max($yearCount);        
+    }  
+    
+    public function renderToday() {
+        $playlist = $this->getService('playlists');
+        
+        $vp = new VisualPaginator($this, 'vp');
+
+        $dataSource = $playlist->interpretSongs->where('DATE(created_at) =  CURDATE() OR DATE(modified_at) =  CURDATE()');
+        
+        $paginator = $vp->getPaginator();
+        $paginator->itemsPerPage = $this->perPage * 10; // zvysime pocet tak, aby byly vzdy vypsany vsechny songy
+        $paginator->itemCount =  $dataSource->count();                
+        
+        $this->template->interpretSongs = $dataSource->order('modified_at ASC, created_at DESC');
+        $this->template->showSort = false;
+        $this->template->today = true;
+        $this->template->limit = $this->perPage;        
+        $this->setView('default');
+    }       
 
     /**
      *

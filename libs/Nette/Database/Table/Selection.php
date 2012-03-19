@@ -35,7 +35,7 @@ class Selection extends Nette\Object implements \Iterator, \ArrayAccess, \Counta
 	/** @var string primary key field name */
 	protected $primary;
 
-	/** @var array of [primary key => TableRow] readed from database */
+	/** @var array of [primary key => TableRow] read from database */
 	protected $rows;
 
 	/** @var array of [primary key => TableRow] modifiable */
@@ -503,20 +503,13 @@ class Selection extends Nette\Object implements \Iterator, \ArrayAccess, \Counta
 		$result->setFetchMode(PDO::FETCH_ASSOC);
 		foreach ($result as $key => $row) {
 			$row = $result->normalizeRow($row);
-			$this->rows[isset($row[$this->primary]) ? $row[$this->primary] : $key] = $this->createRow($row);
+			$this->rows[isset($row[$this->primary]) ? $row[$this->primary] : $key] = new ActiveRow($row, $this);
 		}
 		$this->data = $this->rows;
 
 		if (isset($row[$this->primary]) && !is_string($this->accessed)) {
 			$this->accessed[$this->primary] = TRUE;
 		}
-	}
-
-
-
-	protected function createRow(array $row)
-	{
-		return new ActiveRow($row, $this);
 	}
 
 
@@ -565,7 +558,7 @@ class Selection extends Nette\Object implements \Iterator, \ArrayAccess, \Counta
 	protected function tryDelimite($s)
 	{
 		$driver = $this->connection->getSupplementalDriver();
-		return preg_replace_callback('#(?<=[^\w`"[]|^)[a-z_][a-z0-9_]*(?=[^\w`"\]]|$)#i', function($m) use ($driver) {
+		return preg_replace_callback('#(?<=[^\w`"\[]|^)[a-z_][a-z0-9_]*(?=[^\w`"(\]]|$)#i', function($m) use ($driver) {
 			return strtoupper($m[0]) === $m[0] ? $m[0] : $driver->delimite($m[0]);
 		}, $s);
 	}
