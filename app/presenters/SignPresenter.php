@@ -47,7 +47,7 @@ class SignPresenter extends BasePresenter
 				$this->getUser()->setExpiration('+ 20 minutes', TRUE);
 			}
 			$this->getUser()->login($values->username, $values->password);
-			$this->redirect('Homepage:');
+			$this->redirect('Playlist:');
 
 		} catch (NS\AuthenticationException $e) {
 			$form->addError($e->getMessage());
@@ -60,7 +60,7 @@ class SignPresenter extends BasePresenter
 	{
 		$this->getUser()->logout();
 		$this->flashMessage('You have been signed out.');
-		$this->redirect('in');
+		$this->redirect('Playlist:');
 	}
 
 }

@@ -60,15 +60,15 @@ class PhpWriter extends Nette\Object
 		array_shift($args);
 		$word = strpos($mask, '%node.word') === FALSE ? NULL : $this->argsTokenizer->fetchWord();
 		$me = $this;
-		$mask = Nette\Utils\Strings::replace($mask, '#%escape(\(([^()]*+|(?1))+\))#', function($m) use ($me) {
+		$mask = Nette\Utils\Strings::replace($mask, '#%escape(\(([^()]*+|(?1))+\))#', /*5.2* callback(*/function($m) use ($me) {
 			return $me->escape(substr($m[1], 1, -1));
-		});
-		$mask = Nette\Utils\Strings::replace($mask, '#%modify(\(([^()]*+|(?1))+\))#', function($m) use ($me) {
+		}/*5.2* )*/);
+		$mask = Nette\Utils\Strings::replace($mask, '#%modify(\(([^()]*+|(?1))+\))#', /*5.2* callback(*/function($m) use ($me) {
 			return $me->formatModifiers(substr($m[1], 1, -1));
-		});
+		}/*5.2* )*/);
 
 		return Nette\Utils\Strings::replace($mask, '#([,+]\s*)?%(node\.word|node\.array|node\.args|var|raw)(\?)?(\s*\+\s*)?()#',
-			function($m) use ($me, $word, & $args) {
+			/*5.2* callback(*/function($m) use ($me, $word, & $args) {
 			list(, $l, $macro, $cond, $r) = $m;
 
 			switch ($macro) {
@@ -90,7 +90,7 @@ class PhpWriter extends Nette\Object
 			} else {
 				return $l . $code . $r;
 			}
-		});
+		}/*5.2* )*/);
 	}
 
 
@@ -287,13 +287,15 @@ class PhpWriter extends Nette\Object
 			switch ($context[0]) {
 			case Compiler::CONTEXT_SINGLE_QUOTED:
 			case Compiler::CONTEXT_DOUBLE_QUOTED:
+			case Compiler::CONTEXT_UNQUOTED:
 				if ($context[1] === Compiler::CONTENT_JS) {
 					$s = "Nette\\Templating\\Helpers::escapeJs($s)";
 				} elseif ($context[1] === Compiler::CONTENT_CSS) {
 					$s = "Nette\\Templating\\Helpers::escapeCss($s)";
 				}
-				$quote = $context[0] === Compiler::CONTEXT_DOUBLE_QUOTED ? '' : ', ENT_QUOTES';
-				return "htmlSpecialChars($s$quote)";
+				$quote = $context[0] === Compiler::CONTEXT_SINGLE_QUOTED ? ', ENT_QUOTES' : '';
+				$s = "htmlSpecialChars($s$quote)";
+				return $context[0] === Compiler::CONTEXT_UNQUOTED ? "'\"' . $s . '\"'" : $s;
 			case Compiler::CONTEXT_COMMENT:
 				return "Nette\\Templating\\Helpers::escapeHtmlComment($s)";
 			case Compiler::CONTENT_JS:

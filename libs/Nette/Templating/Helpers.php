@@ -37,6 +37,7 @@ final class Helpers
 		'trim' => 'Nette\Utils\Strings::trim',
 		'padleft' => 'Nette\Utils\Strings::padLeft',
 		'padright' => 'Nette\Utils\Strings::padRight',
+		'reverse' =>  'Nette\Utils\Strings::reverse',
 		'replacere' => 'Nette\Utils\Strings::replace',
 		'url' => 'rawurlencode',
 		'striptags' => 'strip_tags',
@@ -55,7 +56,7 @@ final class Helpers
 	/**
 	 * Try to load the requested helper.
 	 * @param  string  helper name
-	 * @return callback
+	 * @return callable
 	 */
 	public static function loader($helper)
 	{
@@ -163,9 +164,9 @@ final class Helpers
 		return Strings::replace(
 			$s,
 			'#(</textarea|</pre|</script|^).*?(?=<textarea|<pre|<script|$)#si',
-			function($m) {
+			/*5.2* callback(*/function($m) {
 				return trim(preg_replace("#[ \t\r\n]+#", " ", $m[0]));
-			});
+			}/*5.2* )*/);
 	}
 
 
@@ -180,9 +181,9 @@ final class Helpers
 	public static function indent($s, $level = 1, $chars = "\t")
 	{
 		if ($level >= 1) {
-			$s = Strings::replace($s, '#<(textarea|pre).*?</\\1#si', function($m) {
+			$s = Strings::replace($s, '#<(textarea|pre).*?</\\1#si', /*5.2* callback(*/function($m) {
 				return strtr($m[0], " \t\r\n", "\x1F\x1E\x1D\x1A");
-			});
+			}/*5.2* )*/);
 			$s = Strings::indent($s, $level, $chars);
 			$s = strtr($s, "\x1F\x1E\x1D\x1A", " \t\r\n");
 		}

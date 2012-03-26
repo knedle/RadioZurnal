@@ -6,6 +6,9 @@ class Playlist extends Nette\Object {
     
     const AGGREGATION_YEAR = 'year';
     const AGGREGATION_DECADE = 'decade';
+    const AGGREGATION_INTERPRET = 'interpret';
+    const AGGREGATION_INTERPRET_PLAYED = 'playedInterpret';
+    const AGGREGATION_SONG_PLAYED = 'playedSong';    
 
     /** @var Nette\Database\Table\Selection */
     private $interprets;
@@ -107,7 +110,7 @@ class Playlist extends Nette\Object {
     public function playNow($data) {
         list($interpretId, $songId) = explode('-', $data);
         if (!empty($interpretId) && !empty($songId)) {
-            $row = $this->interpretSongs->where('interpret_id', $interpretId)->where('song_id', $songId)->/*where('DATE(modified_at)', new \Nette\Database\SqlLiteral('DATE()'))->*/fetch();
+            $row = $this->interpretSongs->where('interpret_id', $interpretId)->where('song_id', $songId)->where('NOT DATE(modified_at)', new \Nette\Database\SqlLiteral('CURDATE()'))/*->fetch()*/;
             $row->update(array('counter' => new \Nette\Database\SqlLiteral('`counter` + 1'), 'modified_at' => new \Nette\Database\SqlLiteral('NOW()')));
             $this->interpretSongs = $this->database->table('interpret_song');
         }
@@ -194,8 +197,8 @@ class Playlist extends Nette\Object {
                 foreach ($decodeJson as $col => $val) {
                     $query->where($col, $val);
                 }
-                $query->limit(1);
-                $object = $query->fetch();
+                //$query->limit(1);
+                $object = $query;//->fetch();
             }
         }
         if (count($object)) {
@@ -207,8 +210,27 @@ class Playlist extends Nette\Object {
         }
     }
 
+    /**
+     *
+     * @param string $by
+     * @return type 
+     */
     public function loadAgregation($by = '')  {
-        $this->interpretSongs->select('COUNT(`year`) AS yearCount, year')->where('NOT year', 0)->order('year DESC');
-        return $this->interpretSongs->group('year');
+        $limit = 50;
+        switch ($by) {
+            case self::AGGREGATION_DECADE:
+                $this->interpretSongs->select('COUNT(`year`) AS yearCount, SUBSTRING(year,1,3) AS year')->where('NOT year', 0)->order('year DESC')->group('SUBSTRING(year,1,3)');            
+                break;
+            case self::AGGREGATION_INTERPRET:
+                $this->interpretSongs->select('COUNT(`interpret_id`) AS yearCount, interpret_id AS year')->order('yearCount DESC')->group('interpret_id', 'yearCount > 1');            
+                break;            
+            case self::AGGREGATION_INTERPRET_PLAYED:
+                $this->interpretSongs->select('SUM(`counter`) AS yearCount, interpret_id AS year')->order('yearCount DESC')->group('interpret_id', 'yearCount > 1')->limit($limit);
+                break;            
+            default:
+                $this->interpretSongs->select('COUNT(`year`) AS yearCount, year')->where('NOT year', 0)->order('year DESC')->group('year');
+                break;
+        }        
+        return $this->interpretSongs;
     }
 }

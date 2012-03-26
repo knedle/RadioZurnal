@@ -40,7 +40,13 @@ common:
 
 		database: @Nette\Database\Connection
 
-		authenticator: Authenticator( @database::table(users) )
+#		authenticator: Authenticator( @database::table(users) )
+
+		authenticator:
+			class: Nette\Security\SimpleAuthenticator
+			arguments: [[
+				aaa: aaa
+			]]
 
 		playlists: 
 			Playlist( @database )

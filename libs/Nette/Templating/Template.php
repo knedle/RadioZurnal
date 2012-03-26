@@ -150,7 +150,7 @@ class Template extends Nette\Object implements ITemplate
 		$code = $this->getSource();
 		foreach ($this->filters as $filter) {
 			$code = self::extractPhp($code, $blocks);
-			$code = $filter($code);
+			$code = $filter/*5.2*->invoke*/($code);
 			$code = strtr($code, $blocks); // put PHP code back
 		}
 
@@ -165,7 +165,7 @@ class Template extends Nette\Object implements ITemplate
 
 	/**
 	 * Registers callback as template compile-time filter.
-	 * @param  callback
+	 * @param  callable
 	 * @return Template  provides a fluent interface
 	 */
 	public function registerFilter($callback)
@@ -194,7 +194,7 @@ class Template extends Nette\Object implements ITemplate
 	/**
 	 * Registers callback as template run-time helper.
 	 * @param  string
-	 * @param  callback
+	 * @param  callable
 	 * @return Template  provides a fluent interface
 	 */
 	public function registerHelper($name, $callback)
@@ -207,7 +207,7 @@ class Template extends Nette\Object implements ITemplate
 
 	/**
 	 * Registers callback as template run-time helpers loader.
-	 * @param  callback
+	 * @param  callable
 	 * @return Template  provides a fluent interface
 	 */
 	public function registerHelperLoader($callback)
@@ -230,6 +230,17 @@ class Template extends Nette\Object implements ITemplate
 
 
 	/**
+	 * Returns all registered template run-time helper loaders.
+	 * @return array
+	 */
+	final public function getHelperLoaders()
+	{
+		return $this->helperLoaders;
+	}
+
+
+
+	/**
 	 * Call a template run-time helper. Do not call directly.
 	 * @param  string  helper name
 	 * @param  array   arguments
@@ -240,7 +251,7 @@ class Template extends Nette\Object implements ITemplate
 		$lname = strtolower($name);
 		if (!isset($this->helpers[$lname])) {
 			foreach ($this->helperLoaders as $loader) {
-				$helper = $loader($lname);
+				$helper = $loader/*5.2*->invoke*/($lname);
 				if ($helper) {
 					$this->registerHelper($lname, $helper);
 					return $this->helpers[$lname]->invokeArgs($args);

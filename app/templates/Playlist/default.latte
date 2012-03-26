@@ -2,9 +2,11 @@
 
 {block content}
 
+<h2 n:if="!empty($today)" n:block="title">Hrálo dnes</h2>
+
 <div n:if="!empty($today)" class="alert alert-block">
     <h4 class="alert-heading">Upozornění:</h4>
-    <p>Tento seznam 'hrálo dnes' je tvořen návštěvníky tohoto webu - jsou to skladby, které byly dnešního dne přidány do databáze
+<p>Tento seznam 'hrálo dnes' je tvořen návštěvníky tohoto webu - jsou to skladby, které byly dnešního dne přidány do databáze
     nebo byly označeny kliknutím na ikonku 'právě hraje'.<br/>
     Vzhledem k tomu, že tyto akce nejsou pod žádnou kontrolou, nemusí být tento seznam pravdivý.</p>
 </div>
@@ -71,7 +73,8 @@
                     {/if}                      
                 {/if}                
             </th>
-            <th class="ac">více...</th>
+            <th class="ac span2">více...</th>
+            <td n:if="$user->isLoggedIn()" class="ac span1"> </td>            
         </tr>
     </thead>
 
@@ -95,13 +98,14 @@
                 {/if}
                 <span class="label" rel="tooltip" title="poslední den, kdy byla slyšena">{(strtotime($interpretSong->created_at) < strtotime($interpretSong->modified_at)? (date('d.m.Y', strtotime($interpretSong->modified_at))) : (date('d.m.Y', strtotime($interpretSong->created_at))))}</span>
                 {/if}
-                {if (false)}
-                <a n:href="delete!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn ajax">Smazat</a>
-                {/if}
+
             </td>
             <td class="ac">
                 <a rel="tooltip" title="hledej na youtube" href="http://www.youtube.com/results?search_query={$interpretSong->interpret->name} {$interpretSong->song->title}"><img src="{$basePath}/images/youtube-24x24.png" alt="hledej na youtube" /></a>
                 <a rel="tooltip" title="hledej na wikipedii" href="http://www.google.cz/search?q=wikipedia {$interpretSong->interpret->name} {$interpretSong->song->title}"><img src="{$basePath}/images/wikipedia-24x24.png" alt="hledej na wikipedii"/></a>
+            </td>
+            <td n:if="$user->isLoggedIn()" class="ac" data-confirm="Opravdu smazat záznam?">
+                <a n:href="delete!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn btn-danger ajax"><i class="icon-trash"></i></a>
             </td>
         </tr>
     </tbody>    
@@ -110,13 +114,13 @@
         {if count($iterations)}
         <tr>        
 
-            <td colspan="5">
+            <td colspan="{if $user->isLoggedIn()}6{else}5{/if}">
                 Odpovídá filtraci: {$totalCount} / Zobrazeno: {$iterations}
             </td>
         </tr>
         {/if}        
         <tr>    
-            <td colspan="5" class="ac">
+            <td colspan="{if $user->isLoggedIn()}6{else}5{/if}" class="ac">
                 {if count($iterations)}
                 {widget vp}                  
                 {else}
@@ -128,78 +132,6 @@
 
 </table>
 {/snippet}
-
-{snippet addForm}
-    {if (!count($interpretSongs) || !empty($showAddForm) )}
-        {form songSaveForm class => "ac"}
-            {input interpret}
-            {input song}
-            {input year}
-            {input save}
-            {input cancel}
-        {/form songSaveForm}   
-    {/if}
-{/snippet}
-
-<div class="hero-unit">
-    <h2 class="ac">Zbývá identifikovat ~{?echo($finalCount-$totalCount)} skladeb</h2>
-
-
-<p> 
-    V článku Lidových novin z 9. ledna 2012
-    <a href="http://www.lidovky.cz/vysilame-malo-skladeb-priznal-sef-ceskeho-rozhlasu-fxz-/ln-media.asp?c=A120108_153143_ln-media_rka">Vysíláme málo skladeb, přiznal šéf Českého rozhlasu</a>
-    bylo generálním ředitelem Českého rozhlasu Peterem Duhanem uvedeno, že playlist Radiožurnálu má okolo 890 skladeb.
-</p>
-
-<p>
-    A novější informace - odpověd na můj dotaz na twitteru:<br />
-    <a href="https://twitter.com/#!/3knedle/status/175238636458094592">@rozanek</a>: <i>To je proces na delší dobu, ale v lednu jich bylo kolem 950, těch 890 byl prosinec. Nic bližšího nevím.</i>
-</p>    
-
-<!--h2 class="ac">Zkusme je vyjmenovat!</h2-->
-
-</div>
-
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname = 'radiozurnal3teckycz'; // required: replace example with your forum shortname
-
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
-
-<div class="well">
-    <p>
-        <b>Jak získávat skladby? </b><br/>
-        Já používám pro identifikaci svům mobil (Android) a v něm aplikace <a href="http://www.soundhound.com/">SoundHound</a> nebo <a href="http://www.shazam.com/">Shazam</a>, která dokáží identifikovat skladbu "z poslechu".<br />
-        Shazam je obecně rychlejší a úspěšněji identifikuje CZ/SK skladby; s těmi má SoundHound problémy. Ovšem SoundHound se mi líbí více, takže to střídám...        
-    </p>
-    <p>
-        Pokud svou skladbu v seznamu nenajdete (použijte vyhledávání), můžete ji pomocí zobrazeného formuláře přidat. <br />
-        Pokud ji najdete, potvrďte její hranost přes ikonku <a class="btn"><i class="icon-headphones"></i></a>, je-li k dispozici...
-    </p>
-</div>
-
-<div class="modal hide fade" id="myModal">
-    <div class="modal-header">
-        <a class="close" data-dismiss="modal">×</a>
-        <h3>Editace hodnoty</h3>
-    </div>
-    <div class="modal-body">
-        {control modalEditForm}        
-    </div>
-    <div class="modal-footer">
-<!--        <a href="#" class="btn btn-primary">Save changes</a>
-        <a href="#" class="btn">Close</a>-->
-    </div>
-</div>
 
 {/block}
 

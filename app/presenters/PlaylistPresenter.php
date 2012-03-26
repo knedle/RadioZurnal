@@ -26,11 +26,11 @@ class PlaylistPresenter extends BasePresenter {
 
         $session = $this->getService('session');
         $this->session = $session->getSection('playlist');
-        
+
         $playlist = $this->getService('playlists');
-        
-        $totalCount = $playlist->interpretSongs->count();            
-        
+
+        $totalCount = $playlist->interpretSongs->count();
+
         $this->template->finalCount = $this->finalCount; // cilovy pocet
         $this->template->totalCount = $totalCount;
     }
@@ -53,44 +53,79 @@ class PlaylistPresenter extends BasePresenter {
 
         $dataSource->limit($paginator->itemsPerPage, $paginator->offset)->order($order);
 
-        $this->template->limit = $this->perPage;        
+        $this->template->limit = $this->perPage;
         $this->template->showSort = true;
         $this->template->sortBy = Strings::webalize($order);
         $this->template->interpretSongs = $dataSource;
     }
-    
-    public function renderStatsByYear() {
+
+    /**
+     *
+     * @param type $by 
+     */
+    public function renderStatsBy($by) {
         $playlist = $this->getService('playlists');
-        
-        $totalCount = $playlist->interpretSongs->count();                        
-        
-        $yearCountDataSource = $playlist->loadAgregation();       
-        
-        $yearCount = $yearCountDataSource->fetchPairs("year","yearCount");        
-        
+
+        $totalCount = $playlist->interpretSongs->count();
+
+        $yearCountDataSource = $playlist->loadAgregation($by);
+
+        $yearCount = $yearCountDataSource->fetchPairs("year", "yearCount");
+
         $this->template->interpretSongs = $this->getService('interpretSongs');
-        $this->template->showSort = false;        
-        $this->template->summaryList = $yearCount;        
-        $this->template->maxYearCount = max($yearCount);        
-    }  
-    
+        $this->template->showSort = false;
+        $this->template->summaryList = $yearCount;
+        $this->template->maxYearCount = max($yearCount);
+
+
+
+        switch ($by) {
+            case Playlist::AGGREGATION_INTERPRET:
+                $this->setView('statsByInterpret');
+                $this->template->interpretList = $this->getService('interprets')->fetchPairs("id", "name");
+                break;
+            case Playlist::AGGREGATION_INTERPRET_PLAYED:
+                $this->template->interpretList = $this->getService('interprets')->fetchPairs("id", "name");
+                $this->setView('statsByInterpretPlayed');
+                break;
+            case Playlist::AGGREGATION_SONG_PLAYED:
+                $limit = 100;
+                $this->template->topLimit = $limit;
+                $this->template->interpretSongs->order('counter DESC, interpret.name ASC, song.title ASC')->limit($limit);
+                $this->setView('statsBySongPlayed');
+                break;            
+            case Playlist::AGGREGATION_YEAR:
+                $this->setView('statsByYear');
+                break;
+            case Playlist::AGGREGATION_DECADE:
+                $this->setView('statsByDecade');
+                break;
+            default:
+                $this->setView('default');
+                break;
+        }
+    }
+
+    /**
+     * 
+     */
     public function renderToday() {
         $playlist = $this->getService('playlists');
-        
+
         $vp = new VisualPaginator($this, 'vp');
 
-        $dataSource = $playlist->interpretSongs->where('DATE(created_at) =  CURDATE() OR DATE(modified_at) =  CURDATE()');
-        
+        $dataSource = $playlist->interpretSongs->where('DATE(interpret_song.created_at) =  CURDATE() OR DATE(interpret_song.modified_at) =  CURDATE()');
+
         $paginator = $vp->getPaginator();
         $paginator->itemsPerPage = $this->perPage * 10; // zvysime pocet tak, aby byly vzdy vypsany vsechny songy
-        $paginator->itemCount =  $dataSource->count();                
-        
+        $paginator->itemCount = $dataSource->count();
+
         $this->template->interpretSongs = $dataSource->order('modified_at ASC, created_at DESC');
         $this->template->showSort = false;
         $this->template->today = true;
-        $this->template->limit = $this->perPage;        
+        $this->template->limit = $this->perPage;
         $this->setView('default');
-    }       
+    }
 
     /**
      *
@@ -158,6 +193,25 @@ class PlaylistPresenter extends BasePresenter {
             $this->redirect('this');
         }
     }
+    
+    public function actionPlayNow($data, $confirm = null) {
+        if ($confirm) {
+            $playlist = $this->getService('playlists');
+            $playlist->playNow($data);
+            if (!empty($this->session->keyword)) {
+                $data = $playlist->search($this->session->keyword);
+            } else {
+                $data = $playlist->interpretSongs; //->where('0');
+            }
+            if ($this->isAjax()) {
+                $this->template->interpretSongs = $data->order('created_at DESC');
+                $this->template->confirm = 1;
+                $this->invalidateControl('list');
+            } else {
+                $this->redirect('this');
+            }
+        }
+    }    
 
     protected function createComponentSongSaveForm() {
         $form = new Form;
@@ -173,7 +227,7 @@ class PlaylistPresenter extends BasePresenter {
     protected function createComponentSearchForm() {
         $form = new Form;
         $form->setMethod('GET');
-        $form->addText('keyword', 'část názvu/jména interpreta:')->setAttribute('placeholder', 'část názvu songu / část jména interpreta')->setAttribute('class', 'span6 filterList icon-search')->setAttribute('autocomplete', 'off');
+        $form->addText('keyword', 'část názvu/jména interpreta:')->setAttribute('placeholder', 'část názvu songu / část jména interpreta')->setAttribute('class', 'span6 filterList')->setAttribute('autocomplete', 'off');
         $form->addSubmit('find', 'najdi')->setAttribute('class', 'span2 btn btn-primary icon-search');
         $form->onSuccess[] = callback($this, 'searchFormSubmitted');
         return $form;
@@ -287,6 +341,7 @@ class PlaylistPresenter extends BasePresenter {
 
     protected function createComponentModalEditForm() {
         $form = new Form;
+        $form->getElementPrototype()->class('ajaxSubmit');
         $form->addHidden('primaryKey');
         $form->addHidden('table');
         $form->addHidden('column');
@@ -301,7 +356,9 @@ class PlaylistPresenter extends BasePresenter {
 
     public function modalEditFormSubmitted(Form $form) {
         // volá se po odeslání formuláře
-        if ($form['save']->isSubmittedBy()) {
+        
+        //if ($form['save']->isSubmittedBy()) {
+            //die('sdf');
             $values = $form->getValues();
             $playlist = $this->getService('playlists');
             $saved = $playlist->saveValue($values);
@@ -311,10 +368,27 @@ class PlaylistPresenter extends BasePresenter {
             } else {
                 $this->flashMessage('Editace se nezdarila...');
             }
-        }
-        $this->redirect('default');        
+
+            $playlist = $this->getService('playlists');
+            if (!empty($this->session->keyword)) {
+                $data = $playlist->search($this->session->keyword);
+            } else {
+                $data = $playlist->interpretSongs->where('0');
+            }
+            
+            if ($this->isAjax()) {
+                $this->template->interpretSongs = $data;
+                $this->template->hideModalBackground = true;
+                $this->invalidateControl('list');
+                $this->invalidateControl('modalForm');                
+                
+            } else {
+                $this->redirect('this');
+            }
+        //}
+        //$this->redirect('default');
     }
-    
+
     public function songSaveFormSubmitted(Form $form) {
         // volá se po odeslání formuláře
         if ($form['save']->isSubmittedBy()) {
