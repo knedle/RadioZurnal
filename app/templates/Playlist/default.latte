@@ -88,8 +88,10 @@
             <td class="ac">
                 {if (date('Y-m-d', strtotime($interpretSong->created_at)) == date('Y-m-d')) }
                 <span class="label label-success">Dnes přidána</span>
+                {if !empty($today)}<span class="label">{date('H:i', strtotime($interpretSong->created_at))}</span>{/if}
                 {elseif (date('Y-m-d', strtotime($interpretSong->modified_at)) == date('Y-m-d'))}
                 <span class="label label-info">Dnes hrála</span>
+                {if !empty($today)}<span class="label">{date('H:i', strtotime($interpretSong->modified_at))}</span>{/if}
                 {else}
                 {if !empty($confirm)}
                 <a n:href="playNow!, $interpretSong->interpret_id.'-'.$interpretSong->song_id, 1" class="btn ajax addConfirm" rel="tooltip" title="Právě hraje"><i class="icon-headphones"></i></a>
