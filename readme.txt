@@ -1,18 +1,31 @@
-Playlist Radio�urn�lu
+Playlist Radiožurnálu
 =======================
 http://radiozurnal.3tecky.cz
 
 by @3knedle
 http://blog.3tecky.cz
 
-Snaha o z�sk�n� kompletn�ho playlistu stanice �esk� rozhlas 1: Radio�urn�l
+Snaha o získání kompletního playlistu stanice Český rozhlas 1: Radiožurnál
 
-Funk�nost
+Stavební kameny
+---------------
+
+- nette framework
+- jquery framework
+- twitter bootstrap framework
+
+Funkčnost
 ---------
 
-- vyhled�v�n� v seznamu (podle n�zvu songu, jm�na interpreta) (ajax)
-- p�id�n� nov�ho z�znamu (ajax u formul��e)
-- ozna�en� songu, �e pr�v� hraje (ajax)
+- vyhledávání v seznamu (podle názvu songu, jména interpreta)
+- ruční přidání nového záznamu (ajax u zobrazení formuláře)
+- označení songu, že právě hraje (ajax)
+- poloautomatické zjištění, která skladba hraje (označení "právě hraje" 
+nebo založení nového záznamu)
+- administrace (mazání záznamů) bez použití db, data users v config.ini
 
+V plánu
+-------
 
-no db administrace
+- překopat "dnes hrálo" na kompletní log hraných skladeb (včera...) - tab logs
+- překopat statistiky - udělat je nad tab logs
