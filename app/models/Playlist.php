@@ -3,18 +3,17 @@
 use Nette\Diagnostics;
 
 class Playlist extends Nette\Object {
-    
     const AGGREGATION_YEAR = 'year';
     const AGGREGATION_DECADE = 'decade';
     const AGGREGATION_INTERPRET = 'interpret';
     const AGGREGATION_INTERPRET_PLAYED = 'playedInterpret';
-    const AGGREGATION_SONG_PLAYED = 'playedSong';    
+    const AGGREGATION_SONG_PLAYED = 'playedSong';
 
     /** @var Nette\Database\Table\Selection */
     private $interprets;
     private $songs;
     private $database;
-    
+    private $logs;
     public $interpretSongs;
 
     public function __construct(Nette\Database\Connection $database) {
@@ -22,6 +21,7 @@ class Playlist extends Nette\Object {
         $this->interpretSongs = $this->database->table('interpret_song');
         $this->interprets = $this->database->table('interpret');
         $this->songs = $this->database->table('song');
+        $this->logs = $this->database->table('log');
     }
 
     /**
@@ -57,6 +57,8 @@ class Playlist extends Nette\Object {
                 // ulozit song u interpreta
                 $year = !empty($values['year']) ? $values['year'] : 0;
                 $interpret->related('interpret_song')->insert(array('song_id' => $song['id'], 'year' => $year, 'created_at' => new \Nette\Database\SqlLiteral('NOW()')));
+                // log
+                $interpret->related('log')->insert(array('song_id' => $song['id'], 'logtime' => new \Nette\Database\SqlLiteral('NOW()')));
             }
 
             return true;
@@ -72,7 +74,45 @@ class Playlist extends Nette\Object {
      */
     public function search($keyword) {
         $keyword = '%' . $keyword . '%';
-        return $this->interpretSongs->where('interpret.name LIKE ? OR song.title LIKE ? ', $keyword, $keyword);
+        return $this->interpretSongs->where('interpret.name LIKE ? OR interpret.alt LIKE ? OR song.title LIKE ? OR song.alt LIKE ?', $keyword, $keyword, $keyword, $keyword);
+    }
+
+    public function addInterpretSong($interpretName, $songTitle) {
+        $out = '';
+        $interpret = $this->interprets->where('UPPER(interpret.name) LIKE ? OR UPPER(interpret.alt) LIKE ?', $interpretName, $interpretName)->fetch();
+        $song = $this->songs->where('UPPER(song.title) LIKE ? OR UPPER(song.alt) LIKE ?', $songTitle, $songTitle)->fetch();
+        if ($interpret && $song) {
+            $out = 'detectedAndSave';
+        } elseif ($interpret && empty($song)) {
+            // znamy interpret, neznamy song
+            $song = $this->songs->insert(array('title' => $songTitle, 'created_at' => new \Nette\Database\SqlLiteral('NOW()')));
+            $out = 'newSong';
+        } elseif (empty($interpret) && $song) {
+            // znamy song, neznamy interpret
+            $interpret = $this->interprets->insert(array('name' => $interpretName, 'created_at' => new \Nette\Database\SqlLiteral('NOW()')));
+            $out = 'newInterpret';
+        } else {
+            // neznamy interpret i neznamy song
+            $song = $this->songs->insert(array('title' => $songTitle, 'created_at' => new \Nette\Database\SqlLiteral('NOW()')));
+            $interpret = $this->interprets->insert(array('name' => $interpretName, 'created_at' => new \Nette\Database\SqlLiteral('NOW()')));
+            $out = 'newInterpretAndSong';
+        }
+
+        // ulozit
+
+        if ($interpret->related('interpret_song')->where('song_id', $song['id'])->count()) {
+            // jiz existuje
+            $data = $interpret->id . '-' . $song->id;
+            $result = $this->playNow($data);
+        } else {
+            // ulozit song u interpreta
+            $year = 0;
+            $interpret->related('interpret_song')->insert(array('song_id' => $song['id'], 'year' => $year, 'created_at' => new \Nette\Database\SqlLiteral('NOW()')));
+            // loguju
+            $interpret->related('log')->insert(array('song_id' => $song['id'], 'logtime' => new \Nette\Database\SqlLiteral('NOW()')));
+        }
+
+        return $out;
     }
 
     /**
@@ -110,10 +150,13 @@ class Playlist extends Nette\Object {
     public function playNow($data) {
         list($interpretId, $songId) = explode('-', $data);
         if (!empty($interpretId) && !empty($songId)) {
-            $row = $this->interpretSongs->where('interpret_id', $interpretId)->where('song_id', $songId)->where('NOT DATE(modified_at)', new \Nette\Database\SqlLiteral('CURDATE()'))/*->fetch()*/;
-            $row->update(array('counter' => new \Nette\Database\SqlLiteral('`counter` + 1'), 'modified_at' => new \Nette\Database\SqlLiteral('NOW()')));
+            $row = $this->interpretSongs->where('interpret_id', $interpretId)->where('song_id', $songId)->where('NOT DATE(modified_at)', new \Nette\Database\SqlLiteral('CURDATE()'))/* ->fetch() */;
+            $result = $row->update(array('counter' => new \Nette\Database\SqlLiteral('`counter` + 1'), 'modified_at' => new \Nette\Database\SqlLiteral('NOW()')));
             $this->interpretSongs = $this->database->table('interpret_song');
+            // loguju
+            $this->logs->insert(array('interpret_id' => $interpretId,'song_id' => $songId, 'logtime' => new \Nette\Database\SqlLiteral('NOW()')));
         }
+        return $result;
     }
 
     /**
@@ -198,7 +241,7 @@ class Playlist extends Nette\Object {
                     $query->where($col, $val);
                 }
                 //$query->limit(1);
-                $object = $query;//->fetch();
+                $object = $query; //->fetch();
             }
         }
         if (count($object)) {
@@ -215,22 +258,24 @@ class Playlist extends Nette\Object {
      * @param string $by
      * @return type 
      */
-    public function loadAgregation($by = '')  {
+    public function loadAgregation($by = '') {
         $limit = 50;
         switch ($by) {
             case self::AGGREGATION_DECADE:
-                $this->interpretSongs->select('COUNT(`year`) AS yearCount, SUBSTRING(year,1,3) AS year')->where('NOT year', 0)->order('year DESC')->group('SUBSTRING(year,1,3)');            
+                $this->interpretSongs->select('COUNT(`year`) AS yearCount, SUBSTRING(year,1,3) AS year')->where('NOT year', 0)->order('year DESC')->group('SUBSTRING(year,1,3)');
                 break;
             case self::AGGREGATION_INTERPRET:
-                $this->interpretSongs->select('COUNT(`interpret_id`) AS yearCount, interpret_id AS year')->order('yearCount DESC')->group('interpret_id', 'yearCount > 1');            
-                break;            
+                $this->interpretSongs->select('COUNT(`interpret_id`) AS yearCount, interpret_id AS year')->order('yearCount DESC')->group('interpret_id', 'yearCount > 1');
+                break;
             case self::AGGREGATION_INTERPRET_PLAYED:
                 $this->interpretSongs->select('SUM(`counter`) AS yearCount, interpret_id AS year')->order('yearCount DESC')->group('interpret_id', 'yearCount > 1')->limit($limit);
-                break;            
+                break;
             default:
                 $this->interpretSongs->select('COUNT(`year`) AS yearCount, year')->where('NOT year', 0)->order('year DESC')->group('year');
                 break;
-        }        
+        }
         return $this->interpretSongs;
     }
+
 }
+

@@ -31,3 +31,7 @@ a[href^="error:"] {
 .fr {
     float: right !important;
 }
+
+.dn {
+    display: none;
+}

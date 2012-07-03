@@ -31,7 +31,7 @@
                     {/if}                    
                 {/if}                
             </th>
-            <th>
+            <th class="span5">
                 song
                 {if $showSort && ($sortBy != 'song-title-asc')}
                     {if preg_match('/song-title/', $sortBy)}
@@ -82,8 +82,16 @@
 
     <tbody n:if="$interpretSongs">
         <tr n:foreach="$interpretSongs as $interpretSong" data-id='{?echo json_encode(array('song_id'=>$interpretSong->song_id,'interpret_id'=>$interpretSong->interpret_id))}' data-table="interpret_song">
-            <td data-id="{$interpretSong->interpret->id}" data-column="name" data-table="interpret">{$interpretSong->interpret->name}</td>
-            <td data-id="{$interpretSong->song->id}" data-column="title" data-table="song">{$interpretSong->song->title}</td>
+            <td data-id="{$interpretSong->interpret->id}" data-column="name" data-table="interpret" class="showDN">
+                {$interpretSong->interpret->name}
+                <a href="?keyword={$interpretSong->interpret->name|url}&find=najdi&do=searchForm-submit" class="dn"><i class="icon-search"></i></a>
+                <span class="label fr {empty($interpretSong->interpret->alt) ? '' : 'label-info'}" data-column="alt" title="{$interpretSong->interpret->alt}">alt</span>
+            </td>
+            <td data-id="{$interpretSong->song->id}" data-column="title" data-table="song" class="showDN">
+                {$interpretSong->song->title}
+                <a href="?keyword={$interpretSong->song->title|url}&find=najdi&do=searchForm-submit" class="dn"><i class="icon-search"></i></a>
+                <span class="label fr {empty($interpretSong->song->alt) ? '' : 'label-info'}" data-column="alt" title="{$interpretSong->song->alt}">alt</span>
+            </td>
             <td class="ac" data-column="year">{$interpretSong->year == "0000" ? "" : $interpretSong->year}</td>
             <td class="ac">
                 {if (date('Y-m-d', strtotime($interpretSong->created_at)) == date('Y-m-d')) }
@@ -103,8 +111,8 @@
 
             </td>
             <td class="ac">
-                <a rel="tooltip" title="hledej na youtube" href="http://www.youtube.com/results?search_query={$interpretSong->interpret->name} {$interpretSong->song->title}"><img src="{$basePath}/images/youtube-24x24.png" alt="hledej na youtube" /></a>
-                <a rel="tooltip" title="hledej na wikipedii" href="http://www.google.cz/search?q=wikipedia {$interpretSong->interpret->name} {$interpretSong->song->title}"><img src="{$basePath}/images/wikipedia-24x24.png" alt="hledej na wikipedii"/></a>
+                <a rel="tooltip" title="hledej na youtube" href="http://www.youtube.com/results?search_query={$interpretSong->interpret->name|url} {$interpretSong->song->title|url}"><img src="{$basePath}/images/youtube-24x24.png" alt="hledej na youtube" /></a>
+                <a rel="tooltip" title="hledej na wikipedii" href="http://www.google.cz/search?q=wikipedia {$interpretSong->interpret->name|url} {$interpretSong->song->title|url}"><img src="{$basePath}/images/wikipedia-24x24.png" alt="hledej na wikipedii"/></a>
             </td>
             <td n:if="$user->isLoggedIn()" class="ac" data-confirm="Opravdu smazat záznam?">
                 <a n:href="delete!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn btn-danger ajax"><i class="icon-trash"></i></a>
@@ -183,7 +191,7 @@
         });
                 
         // zobrazeni editacniho okenka
-        $('[data-column]').live('dblclick', function(){            
+        $('[data-column]').live('dblclick', function(){      
             var table = $(this).attr('data-table');
             var column = $(this).attr('data-column'); 
             var primaryKey = $(this).attr('data-id');
@@ -196,6 +204,8 @@
             if (!primaryKey) {
                 primaryKey = $(this).closest('[data-id]').attr('data-id');
             }
+            
+            console.log($(this));
             
             $.ajax({
                 url: {link modalEditForm!},
@@ -228,7 +238,7 @@
                     }
                 }
             });
-
+            return false;
         });
         
         $('#myModal').on('shown', function () {
@@ -247,6 +257,15 @@
             $('.addInterpret').val(interpret);
             $('.addSong').focus();
         });            
+        
+        $(".showDN").hover(
+              function () {
+                $('.dn', $(this)).show();
+              }, 
+              function () {
+                $('.dn', $(this)).hide();
+              }
+        );
         
     });
 </script>

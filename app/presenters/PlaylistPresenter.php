@@ -93,7 +93,7 @@ class PlaylistPresenter extends BasePresenter {
                 $this->template->topLimit = $limit;
                 $this->template->interpretSongs->order('counter DESC, interpret.name ASC, song.title ASC')->limit($limit);
                 $this->setView('statsBySongPlayed');
-                break;            
+                break;
             case Playlist::AGGREGATION_YEAR:
                 $this->setView('statsByYear');
                 break;
@@ -120,7 +120,7 @@ class PlaylistPresenter extends BasePresenter {
         $paginator->itemsPerPage = $this->perPage * 10; // zvysime pocet tak, aby byly vzdy vypsany vsechny songy
         $paginator->itemCount = $dataSource->count();
 
-        $this->template->interpretSongs = $dataSource->order('modified_at ASC, created_at DESC');
+        $this->template->interpretSongs = $dataSource->order('modified_at DESC, created_at DESC');
         $this->template->showSort = false;
         $this->template->today = true;
         $this->template->limit = $this->perPage;
@@ -193,7 +193,7 @@ class PlaylistPresenter extends BasePresenter {
             $this->redirect('this');
         }
     }
-    
+
     public function actionPlayNow($data, $confirm = null) {
         if ($confirm) {
             $playlist = $this->getService('playlists');
@@ -211,7 +211,7 @@ class PlaylistPresenter extends BasePresenter {
                 $this->redirect('this');
             }
         }
-    }    
+    }
 
     protected function createComponentSongSaveForm() {
         $form = new Form;
@@ -356,35 +356,33 @@ class PlaylistPresenter extends BasePresenter {
 
     public function modalEditFormSubmitted(Form $form) {
         // volá se po odeslání formuláře
-        
         //if ($form['save']->isSubmittedBy()) {
-            //die('sdf');
-            $values = $form->getValues();
-            $playlist = $this->getService('playlists');
-            $saved = $playlist->saveValue($values);
+        //die('sdf');
+        $values = $form->getValues();
+        $playlist = $this->getService('playlists');
+        $saved = $playlist->saveValue($values);
 
-            if ($saved) {
-                $this->flashMessage('Editace byla uspesne uložena...');
-            } else {
-                $this->flashMessage('Editace se nezdarila...');
-            }
+        if ($saved) {
+            $this->flashMessage('Editace byla uspesne uložena...');
+        } else {
+            $this->flashMessage('Editace se nezdarila...');
+        }
 
-            $playlist = $this->getService('playlists');
-            if (!empty($this->session->keyword)) {
-                $data = $playlist->search($this->session->keyword);
-            } else {
-                $data = $playlist->interpretSongs->where('0');
-            }
-            
-            if ($this->isAjax()) {
-                $this->template->interpretSongs = $data;
-                $this->template->hideModalBackground = true;
-                $this->invalidateControl('list');
-                $this->invalidateControl('modalForm');                
-                
-            } else {
-                $this->redirect('this');
-            }
+        $playlist = $this->getService('playlists');
+        if (!empty($this->session->keyword)) {
+            $data = $playlist->search($this->session->keyword);
+        } else {
+            $data = $playlist->interpretSongs->where('0');
+        }
+
+        if ($this->isAjax()) {
+            $this->template->interpretSongs = $data;
+            $this->template->hideModalBackground = true;
+            $this->invalidateControl('list');
+            $this->invalidateControl('modalForm');
+        } else {
+            $this->redirect('this');
+        }
         //}
         //$this->redirect('default');
     }
@@ -403,6 +401,80 @@ class PlaylistPresenter extends BasePresenter {
             }
         }
         $this->redirect('default');
+    }
+
+    public function handleWhatNowPlayed($cron = false) {
+        $url = "http://www2.rozhlas.cz:81/gselector/player_radiozurnal.js";
+        $html = file_get_contents($url);
+        $html = stripcslashes($html);
+
+        $autorPregMatch = '/<span class="item-interpret">([^<]*)<\/span>/';
+        $songPregMatch = '/<span class="item-track">([^<]*)<\/span>/';
+
+        if (preg_match($autorPregMatch, $html, $matches)) {
+            $interpret = trim($matches[1]);
+        }
+
+        if (preg_match($songPregMatch, $html, $matches)) {
+            $song = trim($matches[1]);
+        }
+
+        $save = true;
+        $jeDenVTydnu = date('N');
+        $jeHodin = date('G');
+        if ($jeDenVTydnu == 7 && $jeHodin == 20) {
+            $save = false;
+        }
+        if ($jeDenVTydnu == 6 && $jeHodin == 9) {
+            $save = false;
+        }
+
+        $this->flashMessage($html, 'dn');
+
+        if (empty($save)) {
+            $this->flashMessage('V tuto dobu běží pořad se speciálním playlistem...');
+        } 
+        
+        if (!empty($song) && !empty($interpret)) {
+            $playlist = $this->getService('playlists');
+            $returnData = $playlist->addInterpretSong($interpret, $song);
+            switch ($returnData) {
+                case 'detectedAndSave':
+                    $this->flashMessage('Song, který právě hraje (' . $interpret . ' - ' . $song . '), byl úspěšně identifikován a uložen do playlistu...');
+                    $redirect = 'today';
+                    break;
+                case 'newSong':
+                    $this->flashMessage('Interpret známý (' . $interpret . '), píseň nová (' . $song . ') - píseň uložena do DB a song playlistu... Dobrý úlovek!');
+                    $redirect = 'today';
+                case 'newInterpret':
+                    $this->flashMessage('Interpret nový (' . $interpret . '), píseň známá (' . $song . ') - interpret uložen do DB a song do playlistu... Dobrý úlovek!');
+                    $redirect = 'today';
+                case 'newInterpretAndSong':
+                    // presmerovat na hlavni stranku
+                    $this->flashMessage('Identifikován zcela nový song (' . $interpret . ' - ' . $song . '), interpret i píseň uloženy do DB. Výborný úlovek!');
+                    $redirect = 'default';
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            $this->flashMessage('Právě nic nehraje, Radiožurnál zapomněl napsat co hraje nebo data nebyla správně identifikována');
+            $redirect = 'default';
+        }
+        if ($cron) {
+            die('this is cron url call');
+        } else {
+            $this->redirect($redirect);
+        }
+        exit;
+    }
+
+    public function actionTestRadiozurnalData() {
+        $url = "http://www2.rozhlas.cz:81/gselector/player_radiozurnal.js";
+        $html = file_get_contents($url);
+        $html = stripcslashes($html);
+        echo $html;
+        exit;
     }
 
 }
