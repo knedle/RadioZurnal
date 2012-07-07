@@ -1,0 +1,144 @@
+{* This is the welcome page, you can delete it *}
+
+{block content}
+
+<h2 n:block="title">Počty songů u interpreta</h2>
+
+{var $tmpInterpretSongs = clone $interpretSongs}
+
+<div class="alert alert-block">
+    <h4 class="alert-heading">Upozornění:</h4>
+    <p>Nejsou vypsáni interpreti u nichž je v databázi jen jedna skladba.
+        <br />
+        Duety a další songy více interpretů se nepričítají k jejich samostatným skladbám. Př.: duet Miro Žbirka + Marika Gombitová není započítán v jejich "samostatném" seznamu ani jednoho z nich.
+    </p>   
+    
+</div>
+
+<div id="accordion">
+    {foreach $summaryList as $year=>$yearCount}
+    <h3>
+        <a href="#">{$interpretList[$year]}; &nbsp; počet songů: {$yearCount}<!--
+            --><div class="progress" style="display: inline-block; width: 700px; float:right; margin-bottom: 0;">
+                <div class="bar" style="width: {? echo round(($yearCount/$maxYearCount)*100)}%;"></div>
+            </div>
+        </a>
+    </h3>
+    <div>
+        <table class="table table-striped table-bordered table-condensed">
+            <thead>
+                <tr style="background-color: #ddd">
+                    <th>interpret</th>
+                    <th>song</th>
+                    <th class="ac span1">rok</th>                    
+                    <th class="ac span2">info</th>
+                    <th class="ac span2">více...</th>
+                </tr>
+            </thead>
+            {var $tmpInterpretSongs = clone $interpretSongs}
+            <tbody n:if="$tmpInterpretSongs">
+                <tr n:foreach="$tmpInterpretSongs->where('interpret_id', $year)->order('song.title ASC') as $interpretSong" data-id='{?echo json_encode(array('song_id'=>$interpretSong->song_id,'interpret_id'=>$interpretSong->interpret_id))}' data-table="interpret_song">
+                    <td data-id="{$interpretSong->interpret->id}" data-column="name" data-table="interpret">{$interpretSong->interpret->name}</td>
+                    <td data-id="{$interpretSong->song->id}" data-column="title" data-table="song">{$interpretSong->song->title}</td>
+                    <td class="ac" data-column="year">{$interpretSong->year == "0000" ? "" : $interpretSong->year}</td>
+                    <td class="ac span2">
+                    {if (date('Y-m-d', strtotime($interpretSong->created_at)) == date('Y-m-d')) }
+                        <span class="label label-success">Dnes přidána</span>
+                    {elseif (date('Y-m-d', strtotime($interpretSong->modified_at)) == date('Y-m-d'))}
+                        <span class="label label-info">Dnes hrála</span>
+                    {else}
+                    {if !empty($confirm)}
+                        <!--a n:href="playNow!, $interpretSong->interpret_id.'-'.$interpretSong->song_id, 1" class="btn ajax addConfirm" rel="tooltip" title="Právě hraje"><i class="icon-headphones"></i></a-->
+                    {else} 
+                        <!--a n:href="playNow!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn ajax addConfirm" rel="tooltip" title="Právě hraje"><i class="icon-headphones"></i></a-->
+                    {/if}
+                        <span class="label" rel="tooltip" title="poslední den, kdy byla slyšena">{(strtotime($interpretSong->created_at) < strtotime($interpretSong->modified_at)? (date('d.m.Y', strtotime($interpretSong->modified_at))) : (date('d.m.Y', strtotime($interpretSong->created_at))))}</span>
+                    {/if}
+                    {if (false)}
+                        <a n:href="delete!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn ajax">Smazat</a>
+                    {/if}
+                    </td>
+                    <td class="ac">
+                        <a rel="tooltip" title="hledej na youtube" href="http://www.youtube.com/results?search_query={$interpretSong->interpret->name} {$interpretSong->song->title}"><img src="{$basePath}/images/youtube-24x24.png" alt="hledej na youtube" /></a>
+                        <a rel="tooltip" title="hledej na wikipedii" href="http://www.google.cz/search?q=wikipedia {$interpretSong->interpret->name} {$interpretSong->song->title}"><img src="{$basePath}/images/wikipedia-24x24.png" alt="hledej na wikipedii"/></a>
+                    </td>
+                </tr>
+            </tbody>  
+        </table>
+    </div>    
+    {/foreach}
+</div>
+
+{/block}
+
+
+{block head}
+<style>
+
+</style>
+<script>
+    $(document).ready(function(){
+        
+        $( "#accordion" ).accordion({
+            autoHeight: false,
+            collapsible: true,
+            active: false
+        });
+        
+        $('table').tooltip({
+            selector: "[rel=tooltip]",
+            placement: "left"
+        });
+
+        $('.addConfirm').each(function(){
+            $(this).attr("href", $(this).attr('href') + "&confirm=1");
+        });
+                
+        // zobrazeni editacniho okenka
+        $('[data-column]').live('dblclick', function(){            
+            var table = $(this).attr('data-table');
+            var column = $(this).attr('data-column'); 
+            var primaryKey = $(this).attr('data-id');
+            if (!table) {
+                table = $(this).closest('[data-table]').attr('data-table');
+            }
+            if (!column) {
+                column = $(this).closest('[data-column]').attr('data-column');
+            }
+            if (!primaryKey) {
+                primaryKey = $(this).closest('[data-id]').attr('data-id');
+            }
+            
+            $.ajax({
+                url: {link modalEditForm!},
+                data: {
+                    table: table,
+                    column: column,
+                    primaryKey: primaryKey
+                },
+                dataType: "json",
+                success: function(data){                   
+                    if (data) {
+                        var modal = $('#myModal');
+                        $('[name=primaryKey]', $(modal)).val(data.primaryKey);
+                        $('[name=table]', $(modal)).val(data.table);
+                        $('[name=column]', $(modal)).val(data.column);
+                        // projet selectOne a smazat ty co nejsou shodneho typu
+                        $('.selectOne', $(modal)).val(data.value).each(function(){
+                            if ($(this).attr('data-type') == data.type) {
+                               $(this).removeAttr('disabled').show();
+                            }
+                            else {
+                                $(this).attr('disabled', 'disabled').hide();
+                            }
+                        });                    
+                        $('#myModal').modal('toggle');                    
+                    }
+                }
+            });
+
+        });
+        
+    });
+</script>
+{/block}
