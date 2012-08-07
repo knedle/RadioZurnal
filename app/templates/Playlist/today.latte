@@ -2,7 +2,7 @@
 
 {block content}
 
-<h2 n:if="!empty($today)" n:block="title">Hrálo dnes</h2>
+<h2 n:if="!empty($today)" n:block="title">Hrálo {? echo !empty($date) ? $date : 'dnes'}</h2>
 
 <div n:if="!empty($today)" class="alert alert-block">
     <h4 class="alert-heading">Upozornění:</h4>
@@ -10,6 +10,10 @@
     nebo byly označeny kliknutím na ikonku 'právě hraje'.<br/>
     Vzhledem k tomu, že tyto akce nejsou pod žádnou kontrolou, nemusí být tento seznam pravdivý.</p>
 </div>
+
+<p>
+    O den dříve: <a n:href="today, $prevDay" class="label">{$prevDay}</a>
+</p>    
 
 {*control songSaveForm*}
 {snippet list}
@@ -60,7 +64,7 @@
                 {/if}                
             </th>
             <th class="ac span2">
-                info
+                dnes hrála
                 {if $showSort && ($sortBy != 'created-at-asc')}
                     {if preg_match('/created-at/', $sortBy)}
                 <i class="icon-chevron-down icon-gray"></i>
@@ -78,49 +82,36 @@
         </tr>
     </thead>
 
-    {?$pocet = $interpretSongs->count('interpret_song.created_at')}
+    {?$pocet = $interpretSongs->count('log.logtime')}
 
     <tbody n:if="$interpretSongs">
         <tr n:foreach="$interpretSongs as $interpretSong" data-id='{?echo json_encode(array('song_id'=>$interpretSong->song_id,'interpret_id'=>$interpretSong->interpret_id))}' data-table="interpret_song">
             <td data-id="{$interpretSong->interpret->id}" data-column="name" data-table="interpret" class="showDN">
                 {$interpretSong->interpret->name}
-                <a href="?keyword={$interpretSong->interpret->name|url}&find=najdi&do=searchForm-submit" class="dn"><i class="icon-search"></i></a>
+                <a href="{empty($basePath) ? '/' : $basePath}?keyword={$interpretSong->interpret->name|url}&find=najdi&do=searchForm-submit" class="dn"><i class="icon-search"></i></a>
                 <span class="label fr {empty($interpretSong->interpret->alt) ? '' : 'label-info'}" data-column="alt" title="{$interpretSong->interpret->alt}">alt</span>
             </td>
             <td data-id="{$interpretSong->song->id}" data-column="title" data-table="song" class="showDN">
                 {$interpretSong->song->title}
-                <a href="?keyword={$interpretSong->song->title|url}&find=najdi&do=searchForm-submit" class="dn"><i class="icon-search"></i></a>
+                <a href="{empty($basePath) ? '/' : $basePath}?keyword={$interpretSong->song->title|url}&find=najdi&do=searchForm-submit" class="dn"><i class="icon-search"></i></a>
                 <span class="label fr {empty($interpretSong->song->alt) ? '' : 'label-info'}" data-column="alt" title="{$interpretSong->song->alt}">alt</span>
             </td>
-            <td class="ac" data-column="year">{$interpretSong->year == "0000" ? "" : $interpretSong->year}</td>
+            <td class="ac" data-column="year">{? echo !empty($years[$interpretSong->interpret_id][$interpretSong->song_id]) ? $years[$interpretSong->interpret_id][$interpretSong->song_id] : ''}</td>
             <td class="ac">
-                {if (date('Y-m-d', strtotime($interpretSong->created_at)) == date('Y-m-d')) }
-                <span class="label label-success">Dnes přidána</span>
-                {if !empty($today)}<span class="label">{date('H:i', strtotime($interpretSong->created_at))}</span>{/if}
-                {elseif (date('Y-m-d', strtotime($interpretSong->modified_at)) == date('Y-m-d'))}
-                <span class="label label-info">Dnes hrála</span>
-                {if !empty($today)}<span class="label">{date('H:i', strtotime($interpretSong->modified_at))}</span>{/if}
-                {else}
-                {if !empty($confirm)}
-                <a n:href="playNow!, $interpretSong->interpret_id.'-'.$interpretSong->song_id, 1" class="btn ajax addConfirm" rel="tooltip" title="Právě hraje"><i class="icon-headphones"></i></a>
-                {else} 
-                <a n:href="playNow!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn ajax addConfirm" rel="tooltip" title="Právě hraje"><i class="icon-headphones"></i></a>
-                {/if}
-                <span class="label" rel="tooltip" title="poslední den, kdy byla slyšena">{(strtotime($interpretSong->created_at) < strtotime($interpretSong->modified_at)? (date('d.m.Y', strtotime($interpretSong->modified_at))) : (date('d.m.Y', strtotime($interpretSong->created_at))))}</span>
-                {/if}
-
+                <span class="label" data-column="logtime" data-table="log"data-id='{?echo json_encode(array('song_id'=>$interpretSong->song_id,'interpret_id'=>$interpretSong->interpret_id,'logtime'=>$interpretSong->logtime->__toString()))}'>{date('H:i', strtotime($interpretSong->logtime))}</span>
             </td>
             <td class="ac">
                 <a rel="tooltip" title="hledej na youtube" href="http://www.youtube.com/results?search_query={$interpretSong->interpret->name|url} {$interpretSong->song->title|url}"><img src="{$basePath}/images/youtube-24x24.png" alt="hledej na youtube" /></a>
                 <a rel="tooltip" title="hledej na wikipedii" href="http://www.google.cz/search?q=wikipedia {$interpretSong->interpret->name|url} {$interpretSong->song->title|url}"><img src="{$basePath}/images/wikipedia-24x24.png" alt="hledej na wikipedii"/></a>
             </td>
             <td n:if="$user->isLoggedIn()" class="ac" data-confirm="Opravdu smazat záznam?">
-                <a n:href="delete!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn btn-danger ajax"><i class="icon-trash"></i></a>
+                <a n:href="deleteLog, $interpretSong->interpret_id.'*'.$interpretSong->song_id.'*'.$interpretSong->logtime" class="btn btn-danger xajax"><i class="icon-trash"></i></a>
             </td>
         </tr>
     </tbody>    
 
     <tfoot>
+    {dump $iterations}
         {if $iterations}
         <tr>        
 
@@ -134,7 +125,7 @@
                 {if $iterations}
                 {widget vp}                  
                 {else}
-                <b>Na základě filtrace nebyla nalezena žádná data...</b>
+                <b>Na základě filtrace - den případně i hledaný termín - nebyla nalezena žádná data; Info: logování bylo spuštěno 12.7.2012</b>
                 {/if}                
             </td>
         </tr>

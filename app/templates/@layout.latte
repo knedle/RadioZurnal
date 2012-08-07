@@ -1,4 +1,4 @@
-﻿{**
+{**
  * My Application layout template.
  *
  * @copyright  Copyright (c) 2010 John Doe
@@ -54,10 +54,22 @@
         <div class="container">
             <div class="page-headerx row">
 
-                <div class="span11">                
+                <div class="span7">                
                     <h1>playlist Radiožurnálu</h1>
                     <p>Český rozhlas 1 - Radiožurnál</p>
                 </div>
+                
+                <div class="span2 ac">
+                <a href="http://www.rozhlas.cz/" title="web Českého rozhlasu" target="_blank"><img src="{$basePath}/images/cesky-rozhlas-logo-bile.png"></a>
+                </div>
+
+                <div class="span1 ac">
+                <a href="http://www.rozhlas.cz/radiozurnal/" title="web ČR1 Radiožurnálu" target="_blank"><img src="{$basePath}/images/radiozurnal-jen-logo-bile.png"></a>
+                </div>                 
+                
+                <div class="span1 ac">
+                <a href="http://prehravac.rozhlas.cz/radiozurnal" title="Radiožurnál - online rádio" target="_blank"><img src="{$basePath}/images/radiozurnal-jen-logo-modre.png"></a>
+                </div>                
 
                 <div class="span1 ac">
                     <span class=""><a class="FlattrButton" style="display:none;" href="http://radiozurnal.3tecky.cz"></a>
@@ -75,7 +87,7 @@
                         <a n:href="addNew!" class="btn ajax"><i class="icon-plus-sign"></i> Přidej ručně</a>
                     {/snippet}
                     {/if}
-                    <a n:href="whatNowPlayed!, true" class="btn xajax"><i class="icon-question-sign"></i> Identifikuj, co právě hraje</a>                        
+                    <a n:href="whatNowPlayed!" class="btn xajax"><i class="icon-question-sign"></i> Identifikuj, co právě hraje</a>                        
                 {/form searchForm}
             {/if}
 

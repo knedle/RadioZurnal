@@ -15,6 +15,7 @@ class PlaylistPresenter extends BasePresenter {
     private $interprets;
     private $songs;
     private $interpretSongs;
+    private $logs;
     private $perPage = 25;
     private $finalCount = 950; // z clanku...
     private $session = null;
@@ -23,6 +24,7 @@ class PlaylistPresenter extends BasePresenter {
         parent::startup();
 
         $this->interpretSongs = $this->getService('interpretSongs');
+        $this->logs = $this->getService('logs');
 
         $session = $this->getService('session');
         $this->session = $session->getSection('playlist');
@@ -109,22 +111,53 @@ class PlaylistPresenter extends BasePresenter {
     /**
      * 
      */
-    public function renderToday() {
+    public function renderToday($date = null) {
         $playlist = $this->getService('playlists');
 
         $vp = new VisualPaginator($this, 'vp');
+        
+        $today = !empty($date) ? new DateTime($date) : new DateTime();
+        
+        if (empty($date)) {
+            $dataSource = $playlist->logs->where('DATE(log.logtime) =  CURDATE()');
+        } else {
+            $dataSource = $playlist->logs->where('DATE(log.logtime) = ?', $today->format('Y-m-d'));
+        }
+        
+        $totalCount = $dataSource->count();  
+        
+        $prevDay = $today;
+        $prevDay->sub(new DateInterval('P1D'));        
 
-        $dataSource = $playlist->interpretSongs->where('DATE(interpret_song.created_at) =  CURDATE() OR DATE(interpret_song.modified_at) =  CURDATE()');
+        //$dataSource = $playlist->interpretSongs->where('DATE(interpret_song.created_at) =  CURDATE() OR DATE(interpret_song.modified_at) =  CURDATE()');
+
+        $dataSourceSong = clone $dataSource;
+        $dataSourceInterpret = clone $dataSource;
+
+        $dataSourceForYear = $playlist->interpretSongs->where('song_id', $dataSourceSong->select('song_id'))->where('interpret_id', $dataSourceInterpret->select('interpret_id'));
+        $years = array();
+        foreach ($dataSourceForYear as $forYear) {
+            $years[$forYear->interpret_id][$forYear->song_id] = $forYear->year;
+        }
 
         $paginator = $vp->getPaginator();
         $paginator->itemsPerPage = $this->perPage * 10; // zvysime pocet tak, aby byly vzdy vypsany vsechny songy
         $paginator->itemCount = $dataSource->count();
 
-        $this->template->interpretSongs = $dataSource->order('modified_at DESC, created_at DESC');
+        
+
+
+
+        //$this->template->interpretSongs = $dataSource->order('modified_at DESC, created_at DESC');
+        $this->template->interpretSongs = $dataSource->order('log.logtime DESC');
         $this->template->showSort = false;
         $this->template->today = true;
         $this->template->limit = $this->perPage;
-        $this->setView('default');
+        $this->template->years = $years;
+        $this->template->date = $date;
+        $this->template->prevDay = $prevDay->format("d.m.Y");
+        $this->template->totalCount = $totalCount;
+        //$this->setView('default');
     }
 
     /**
@@ -134,7 +167,6 @@ class PlaylistPresenter extends BasePresenter {
     public function handleDelete($data) {
         $playlist = $this->getService('playlists');
         $playlist->delete($data);
-//        $this->template->interpretSongs = $this->getService('interprets')->order('created_at');
         $this->flashMessage('Záznam byl odstraněn...');
         if ($this->isAjax()) {
             $this->template->interpretSongs = $playlist->interpretSongs->order('created_at DESC');
@@ -142,6 +174,25 @@ class PlaylistPresenter extends BasePresenter {
         } else {
             $this->redirect('this');
         }
+    }
+
+    public function handleDeleteLog($data) {
+        $playlist = $this->getService('playlists');
+        $playlist->deleteLog($data);
+        $this->flashMessage('Záznam byl odstraněn...');
+        if ($this->isAjax()) {
+            $this->template->interpretSongs = $playlist->interpretSongs->order('created_at DESC');
+            $this->invalidateControl('list');
+        } else {
+            $this->redirect('this');
+        }
+    }
+
+    public function actionDeleteLog($data) {
+        $playlist = $this->getService('playlists');
+        $playlist->deleteLog($data);
+        $this->flashMessage('Záznam byl odstraněn...');
+        $this->redirect('today');
     }
 
     /**
@@ -152,11 +203,11 @@ class PlaylistPresenter extends BasePresenter {
         if ($confirm) {
             $playlist = $this->getService('playlists');
             $playlist->playNow($data);
-            if (!empty($this->session->keyword)) {
-                $data = $playlist->search($this->session->keyword);
-            } else {
+//            if (!empty($this->session->keyword)) {
+//                $data = $playlist->search($this->session->keyword);
+//            } else {
                 $data = $playlist->interpretSongs; //->where('0');
-            }
+//            }
             if ($this->isAjax()) {
                 $this->template->interpretSongs = $data->order('created_at DESC');
                 $this->template->confirm = 1;
@@ -433,8 +484,8 @@ class PlaylistPresenter extends BasePresenter {
 
         if (empty($save)) {
             $this->flashMessage('V tuto dobu běží pořad se speciálním playlistem...');
-        } 
-        
+        }
+
         if (!empty($song) && !empty($interpret)) {
             $playlist = $this->getService('playlists');
             $returnData = $playlist->addInterpretSong($interpret, $song);

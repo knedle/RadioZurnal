@@ -13,7 +13,7 @@ class Playlist extends Nette\Object {
     private $interprets;
     private $songs;
     private $database;
-    private $logs;
+    public $logs;
     public $interpretSongs;
 
     public function __construct(Nette\Database\Connection $database) {
@@ -143,6 +143,37 @@ class Playlist extends Nette\Object {
         }
     }
 
+    public function deleteLog($data) {
+        list($interpretId, $songId, $time) = explode('*', $data);
+        if (!empty($interpretId) && !empty($songId) && !empty($time)) {
+            // smazat log
+            $this->logs->where('interpret_id', $interpretId)->where('song_id', $songId)->where('logtime', $time)->delete();
+
+            // zjistit pocet ostatnich logu
+            $log_count = $this->database->table('log')->where('interpret_id', $interpretId)->where('song_id', $songId)->count();
+            if (empty($log_count)) {
+                // pokud logy uz zadne nejdou, smazat spojeni
+                $this->interpretSongs->where('interpret_id', $interpretId)->where('song_id', $songId)->delete();
+            }
+
+            // ostestovat existenci jinych dat u interpreta
+            $is_count = $this->database->table('interpret_song')->where('interpret_id', $interpretId)->count();
+            // pokud neexistuji, smazat interpreta
+            if (empty($is_count)) {
+                $this->interprets->find($interpretId)->delete();
+            }
+
+            // otestovat existenci jinych dat u songu
+            $is_count = $this->database->table('interpret_song')->where('song_id', $songId)->count();
+            // pokud neexistuji, smazat
+            if (empty($is_count)) {
+                $this->songs->find($songId)->delete();
+            }
+
+            $this->interpretSongs = $this->database->table('interpret_song');
+        }
+    }
+
     /**
      *
      * @param type $data 
@@ -154,7 +185,10 @@ class Playlist extends Nette\Object {
             $result = $row->update(array('counter' => new \Nette\Database\SqlLiteral('`counter` + 1'), 'modified_at' => new \Nette\Database\SqlLiteral('NOW()')));
             $this->interpretSongs = $this->database->table('interpret_song');
             // loguju
-            $this->logs->insert(array('interpret_id' => $interpretId,'song_id' => $songId, 'logtime' => new \Nette\Database\SqlLiteral('NOW()')));
+            $todayLogs = $this->logs->where('interpret_id', $interpretId)->where('song_id', $songId)->where('logtime + INTERVAL 10 MINUTE > ?', new \Nette\Database\SqlLiteral('NOW()'));
+            if (!count($todayLogs)) {
+                $this->logs->insert(array('interpret_id' => $interpretId, 'song_id' => $songId, 'logtime' => new \Nette\Database\SqlLiteral('NOW()')));
+            }
         }
         return $result;
     }
@@ -192,6 +226,9 @@ class Playlist extends Nette\Object {
                         case (preg_match("/text/", $field->Type)) :
                             $type = 'textarea';
                             break;
+                        case (preg_match("/datetime/", $field->Type)) :
+                            $tmpData = (array) $object[$column];
+                            $object[$column] = $tmpData['date'];
                         default:
                             $type = 'text';
                             break;

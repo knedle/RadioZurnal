@@ -5,7 +5,6 @@
  */
 use Nette\Application\Routers\Route;
 
-
 // Load Nette Framework
 require LIBS_DIR . '/Nette/loader.php';
 
@@ -30,6 +29,7 @@ $container = $configurator->createContainer();
 
 // Setup router
 $container->router[] = new Route('index.php', 'Playlist:default', Route::ONE_WAY);
+$container->router[] = new Route('<presenter>/<date [0-9]{1,2}\.[0-9]{1,2}\.[0-9]{4}>', 'Playlist:today');
 $container->router[] = new Route('<presenter>/<action>[/<id>]', 'Playlist:default');
 
 // Configure and run the application!
