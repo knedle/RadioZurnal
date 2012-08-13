@@ -23,7 +23,7 @@ use Nette,
  * Basic container builder.
  *
  * @author     David Grudl
- * @property-read array $definitions
+ * @property-read ServiceDefinition[] $definitions
  * @property-read array $dependencies
  */
 class ContainerBuilder extends Nette\Object
@@ -34,7 +34,7 @@ class ContainerBuilder extends Nette\Object
 	/** @var array  %param% will be expanded */
 	public $parameters = array();
 
-	/** @var array of ServiceDefinition */
+	/** @var ServiceDefinition[] */
 	private $definitions = array();
 
 	/** @var array for auto-wiring */
@@ -267,14 +267,13 @@ class ContainerBuilder extends Nette\Object
 				$reflection = $factory->toReflection();
 				$def->class = preg_replace('#[|\s].*#', '', $reflection->getAnnotation('return'));
 				if ($def->class && !class_exists($def->class) && $def->class[0] !== '\\' && $reflection instanceof \ReflectionMethod) {
-					/**/$def->class = $reflection->getDeclaringClass()->getNamespaceName() . '\\' . $def->class;/**/
+					$def->class = $reflection->getDeclaringClass()->getNamespaceName() . '\\' . $def->class;
 				}
 			} catch (\ReflectionException $e) {
 			}
 
 		} elseif ($service = $this->getServiceName($factory)) { // alias or factory
 			if (Strings::contains($service, '\\')) { // @\Class
-				/*5.2* $service = ltrim($service, '\\');*/
 				$def->autowired = FALSE;
 				return $def->class = $service;
 			}
@@ -509,7 +508,7 @@ class ContainerBuilder extends Nette\Object
 
 			} elseif ($service = $that->getServiceName($val, $self)) {
 				$val = $service === $self ? '$service' : $that->formatStatement(new Statement($val));
-				$val = new PhpLiteral($val, $self);
+				$val = new PhpLiteral($val);
 			}
 		});
 		return PhpHelpers::formatArgs($statement, $args);

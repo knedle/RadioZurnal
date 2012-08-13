@@ -15,6 +15,7 @@ class Playlist extends Nette\Object {
     private $database;
     public $logs;
     public $interpretSongs;
+    public $ratings;
 
     public function __construct(Nette\Database\Connection $database) {
         $this->database = $database;
@@ -22,6 +23,7 @@ class Playlist extends Nette\Object {
         $this->interprets = $this->database->table('interpret');
         $this->songs = $this->database->table('song');
         $this->logs = $this->database->table('log');
+        $this->ratings = $this->database->table('rating');
     }
 
     /**

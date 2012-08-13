@@ -8,7 +8,8 @@
  */
 use Nette\Application\UI\Form,
     Nette\Utils\Strings,
-    Nette\Application as NA;
+    Nette\Application as NA,
+    Nette\Diagnostics;
 
 class PlaylistPresenter extends BasePresenter {
 
@@ -115,19 +116,29 @@ class PlaylistPresenter extends BasePresenter {
         $playlist = $this->getService('playlists');
 
         $vp = new VisualPaginator($this, 'vp');
-        
+
         $today = !empty($date) ? new DateTime($date) : new DateTime();
-        
+
         if (empty($date)) {
             $dataSource = $playlist->logs->where('DATE(log.logtime) =  CURDATE()');
         } else {
             $dataSource = $playlist->logs->where('DATE(log.logtime) = ?', $today->format('Y-m-d'));
         }
-        
-        $totalCount = $dataSource->count();  
-        
-        $prevDay = $today;
-        $prevDay->sub(new DateInterval('P1D'));        
+
+        $totalCount = $dataSource->count();
+
+        $prevDay = clone $today;
+        $prevDay->sub(new DateInterval('P1D'));
+
+        // ziskat hlasovani uzivatele
+        $userHash = $this->getBrowserHash();
+        $ratingsSource = $playlist->ratings->where('user_hash', $userHash)->where('day', new \Nette\Database\SqlLiteral('CURDATE()'));
+        $ratings = array();
+        foreach ($ratingsSource as $ratingSource) {
+            $ratings[$ratingSource->interpret_id][$ratingSource->song_id] = $ratingSource->like;
+        }
+
+        $todayRatings = $this->getService('ratings')->where('day', $today->format('Y-m-d'));
 
         //$dataSource = $playlist->interpretSongs->where('DATE(interpret_song.created_at) =  CURDATE() OR DATE(interpret_song.modified_at) =  CURDATE()');
 
@@ -144,11 +155,7 @@ class PlaylistPresenter extends BasePresenter {
         $paginator->itemsPerPage = $this->perPage * 10; // zvysime pocet tak, aby byly vzdy vypsany vsechny songy
         $paginator->itemCount = $dataSource->count();
 
-        
-
-
-
-        //$this->template->interpretSongs = $dataSource->order('modified_at DESC, created_at DESC');
+        // naplnit sablonu daty
         $this->template->interpretSongs = $dataSource->order('log.logtime DESC');
         $this->template->showSort = false;
         $this->template->today = true;
@@ -157,7 +164,9 @@ class PlaylistPresenter extends BasePresenter {
         $this->template->date = $date;
         $this->template->prevDay = $prevDay->format("d.m.Y");
         $this->template->totalCount = $totalCount;
-        //$this->setView('default');
+        $this->template->ratings = $ratings;
+        $this->template->showRating = $today->format('Y-m-d') == date('Y-m-d');
+        $this->template->todayRatingCount = count($todayRatings);
     }
 
     /**
@@ -206,7 +215,7 @@ class PlaylistPresenter extends BasePresenter {
 //            if (!empty($this->session->keyword)) {
 //                $data = $playlist->search($this->session->keyword);
 //            } else {
-                $data = $playlist->interpretSongs; //->where('0');
+            $data = $playlist->interpretSongs; //->where('0');
 //            }
             if ($this->isAjax()) {
                 $this->template->interpretSongs = $data->order('created_at DESC');
@@ -279,7 +288,7 @@ class PlaylistPresenter extends BasePresenter {
         $form = new Form;
         $form->setMethod('GET');
         $form->addText('keyword', 'část názvu/jména interpreta:')->setAttribute('placeholder', 'část názvu songu / část jména interpreta')->setAttribute('class', 'span6 filterList')->setAttribute('autocomplete', 'off');
-        $form->addSubmit('find', 'najdi')->setAttribute('class', 'span2 btn btn-primary icon-search');
+        $form->addSubmit('find', 'najdi')->setAttribute('class', 'span2 btn btn-primary');
         $form->onSuccess[] = callback($this, 'searchFormSubmitted');
         return $form;
     }
@@ -528,4 +537,97 @@ class PlaylistPresenter extends BasePresenter {
         exit;
     }
 
+    public function handleRate($ratingStatus, $interpretId, $songId, $confirm = null) {
+        if ($confirm) {
+
+            $playlist = $this->getService('playlists');
+            $today = new DateTime();
+            $userHash = $this->getBrowserHash();
+
+
+            // ziskat vsechna +-
+
+            $ratingsSource = $playlist->ratings->where('user_hash', $userHash)->where('day', $today->format('Y-m-d'));
+            $ratings = array();
+            foreach ($ratingsSource as $ratingSource) {
+                $ratings[$ratingSource->interpret_id][$ratingSource->song_id] = $ratingSource->like;
+            }
+            // vzdy smazat stav v db
+            $result = $this->getService('ratings')
+                    ->where('interpret_id', $interpretId)
+                    ->where('song_id', $songId)
+                    ->where('user_hash', $userHash)
+                    ->where('day', new \Nette\Database\SqlLiteral('CURDATE()'))
+                    ->delete();
+
+            // zkontrolovat, zda bylo jen smazano
+            if (!empty($ratings[$interpretId][$songId]) && $ratings[$interpretId][$songId] > 0 && $ratingStatus == 'plus') {
+                // jen odstraneni ze seznamu
+                unset($ratings[$interpretId][$songId]);
+                unset($ratingStatus);
+            } elseif (!empty($ratings[$interpretId][$songId]) && $ratings[$interpretId][$songId] < 0 && $ratingStatus == 'minus') {
+                // jen odstraneni ze seznamu
+                unset($ratings[$interpretId][$songId]);
+                unset($ratingStatus);
+            } else {
+                // ulozit hlasovani
+                $rStatus['plus'] = 1;
+                $rStatus['minus'] = -1;
+
+                $data = array(
+                    'interpret_id' => $interpretId,
+                    'song_id' => $songId,
+                    'user_hash' => $userHash,
+                    'day' => new \Nette\Database\SqlLiteral('CURDATE()'),
+                    'like' => $rStatus[$ratingStatus]
+                );
+                $this->getService('ratings')
+                        ->insert($data);
+            }
+//die($userHash);
+            // upravit stav hlasovani
+
+            if ($this->isAjax()) {
+                $todayRatings = $this->getService('ratings')->where('day', $today->format('Y-m-d'));
+                $this->template->ratings = $ratings;
+                $this->template->confirm = 1;
+                $this->template->todayRatings = count($todayRatings);
+                $this->invalidateControl('list');
+                // tohle jeste nefunguje, melo by pak
+                $this->invalidateControl('hlasovani-' . $interpretId . '-' . $songId);
+                $this->invalidateControl('ratingCount');
+            } else {
+                $this->redirect('today');
+            }
+        } else {
+            $this->invalidateControl('list');
+        }
+    }
+
+    public function actionRate($ratingStatus, $interpretId, $songId, $confirm = null) {
+        $this->handleRate($ratingStatus, $interpretId, $songId, $confirm);
+    }
+
+    /**
+     * vrati hash uzivatele podle jeho prohlizece
+     * pokus o jeho identifikaci
+     * @return string 
+     */
+    private function getBrowserHash() {
+        // ruzne prohlizece nemusi mit vsechny, proto @
+        @$hashSource =
+                //$_SERVER['HTTP_ACCEPT'] .
+                $_SERVER['HTTP_ACCEPT_ENCODING'] .
+                $_SERVER['HTTP_ACCEPT_CHARSET'] .
+                $_SERVER['HTTP_ACCEPT_LANGUAGE'] .
+                $_SERVER['HTTP_UA_CPU'] .
+                $_SERVER['HTTP_USER_AGENT'] .
+                $_SERVER['REMOTE_ADDR'];
+        return md5($hashSource);
+    }
+
 }
+
+// text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8gzip,deflate,sdchwindows-1250,utf-8;q=0.7,*;q=0.3cs-CZ,cs;q=0.8Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.60 Safari/537.1127.0.0.1
+// text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8gzip,deflate,sdchwindows-1250,utf-8;q=0.7,*;q=0.3cs-CZ,cs;q=0.8Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.60 Safari/537.1127.0.0.1
+//186801e1dcefb55250ca8a60e534345

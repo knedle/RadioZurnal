@@ -83,7 +83,7 @@ class Parameter extends \ReflectionParameter
 
 
 	/**
-	 * @return Method | FunctionReflection
+	 * @return Method|GlobalFunction
 	 */
 	public function getDeclaringFunction()
 	{
@@ -108,9 +108,9 @@ class Parameter extends \ReflectionParameter
 	/**
 	 * @return ClassType
 	 */
-	public /**/static/**/ function getReflection()
+	public static function getReflection()
 	{
-		return new ClassType(/*5.2*$this*//**/get_called_class()/**/);
+		return new ClassType(get_called_class());
 	}
 
 

@@ -77,6 +77,7 @@
                     {/if}                      
                 {/if}                
             </th>
+            <th class="ac" n:if="$showRating">hlasuj</th>
             <th class="ac span2">více...</th>
             <td n:if="$user->isLoggedIn()" class="ac span1"> </td>            
         </tr>
@@ -100,6 +101,12 @@
             <td class="ac">
                 <span class="label" data-column="logtime" data-table="log"data-id='{?echo json_encode(array('song_id'=>$interpretSong->song_id,'interpret_id'=>$interpretSong->interpret_id,'logtime'=>$interpretSong->logtime->__toString()))}'>{date('H:i', strtotime($interpretSong->logtime))}</span>
             </td>
+            <td class="span2" n:if="$showRating">
+                <div class="btn-group hlasovani" n:snippet="hlasovani-$interpretSong->interpret_id-$interpretSong->song_id">
+                    <a n:href="rate!, 'plus', $interpretSong->interpret_id, $interpretSong->song_id, @$confirm" class="btn ajax addConfirm {if (!empty($ratings[$interpretSong->interpret_id][$interpretSong->song_id]) && $ratings[$interpretSong->interpret_id][$interpretSong->song_id] > 0)}btn-success{/if}" title="tuhle píseň chci poslouchat na Radiožurnálu"><i class="icon icon-thumbs-up"></i></a>
+                    <a n:href="rate!, 'minus', $interpretSong->interpret_id, $interpretSong->song_id, @$confirm" class="btn ajax addConfirm {if (!empty($ratings[$interpretSong->interpret_id][$interpretSong->song_id]) && $ratings[$interpretSong->interpret_id][$interpretSong->song_id] < 0)}btn-danger{/if}" title="tuhle píseň nechci poslouchat na Radiožurnálu"><i class="icon icon-thumbs-down"></i></a>                    
+                </div>                
+            </td>
             <td class="ac">
                 <a rel="tooltip" title="hledej na youtube" href="http://www.youtube.com/results?search_query={$interpretSong->interpret->name|url} {$interpretSong->song->title|url}"><img src="{$basePath}/images/youtube-24x24.png" alt="hledej na youtube" /></a>
                 <a rel="tooltip" title="hledej na wikipedii" href="http://www.google.cz/search?q=wikipedia {$interpretSong->interpret->name|url} {$interpretSong->song->title|url}"><img src="{$basePath}/images/wikipedia-24x24.png" alt="hledej na wikipedii"/></a>
@@ -114,19 +121,16 @@
     {dump $iterations}
         {if $iterations}
         <tr>        
-
-            <td colspan="{if $user->isLoggedIn()}6{else}5{/if}">
+            <td colspan="{if $user->isLoggedIn()}7{else}6{/if}">
                 Odpovídá filtraci: {$totalCount} / Zobrazeno: {$iterations}
             </td>
         </tr>
         {/if}        
         <tr>    
-            <td colspan="{if $user->isLoggedIn()}6{else}5{/if}" class="ac">
-                {if $iterations}
-                {widget vp}                  
-                {else}
-                <b>Na základě filtrace - den případně i hledaný termín - nebyla nalezena žádná data; Info: logování bylo spuštěno 12.7.2012</b>
-                {/if}                
+            <td colspan="{if $user->isLoggedIn()}7{else}6{/if}" class="ac">
+                {snippet ratingCount}
+                Počet hlasů u písní tohoto dne: {$todayRatingCount} 
+                {/snippet}
             </td>
         </tr>
     </tfoot>
@@ -255,7 +259,7 @@
               }, 
               function () {
                 $('.dn', $(this)).hide();
-              }
+              }                            
         );
         
     });

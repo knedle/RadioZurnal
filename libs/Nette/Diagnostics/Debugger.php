@@ -155,7 +155,7 @@ final class Debugger
 	 */
 	public static function _init()
 	{
-		self::$time = microtime(TRUE);
+		self::$time = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(TRUE);
 		self::$consoleMode = PHP_SAPI === 'cli';
 		self::$productionMode = self::DETECT;
 		if (self::$consoleMode) {
@@ -231,10 +231,12 @@ final class Debugger
 			self::$productionMode = $mode;
 
 		} elseif ($mode !== self::DETECT || self::$productionMode === NULL) { // IP addresses or computer names whitelist detection
-			$mode = is_string($mode) ? preg_split('#[,\s]+#', $mode) : (array) $mode;
-			$mode[] = '127.0.0.1';
-			$mode[] = '::1';
-			self::$productionMode = !in_array(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : php_uname('n'), $mode, TRUE);
+			$list = is_string($mode) ? preg_split('#[,\s]+#', $mode) : (array) $mode;
+			if (!isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+				$list[] = '127.0.0.1';
+				$list[] = '::1';
+			}
+			self::$productionMode = !in_array(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : php_uname('n'), $list, TRUE);
 		}
 
 		// logging configuration
@@ -321,7 +323,7 @@ final class Debugger
 				: get_class($exception) . ": " . $exception->getMessage())
 				. " in " . $exception->getFile() . ":" . $exception->getLine();
 
-			$hash = md5($exception /*5.2*. (method_exists($exception, 'getPrevious') ? $exception->getPrevious() : (isset($exception->previous) ? $exception->previous : ''))*/);
+			$hash = md5($exception );
 			$exceptionFilename = "exception-" . @date('Y-m-d-H-i-s') . "-$hash.html";
 			foreach (new \DirectoryIterator(self::$logDirectory) as $entry) {
 				if (strpos($entry, $hash)) {
@@ -586,7 +588,7 @@ final class Debugger
 		$output = "<pre class=\"nette-dump\">" . Helpers::htmlDump($var) . "</pre>\n";
 
 		if (!$return) {
-			$trace = /*5.2*PHP_VERSION_ID < 50205 ? debug_backtrace() : */debug_backtrace(FALSE);
+			$trace = debug_backtrace(FALSE);
 			$i = Helpers::findTrace($trace, 'dump') ? 1 : 0;
 			if (isset($trace[$i]['file'], $trace[$i]['line']) && is_file($trace[$i]['file'])) {
 				$lines = file($trace[$i]['file']);
@@ -606,7 +608,7 @@ final class Debugger
 		}
 
 		if (self::$consoleMode) {
-			if (self::$consoleColors && substr(PHP_OS, 0, 3) !== 'WIN') {
+			if (self::$consoleColors && substr(getenv('TERM'), 0, 5) === 'xterm') {
 				$output = preg_replace_callback('#<span class="php-(\w+)">|</span>#', function($m) {
 					return "\033[" . (isset($m[1], Debugger::$consoleColors[$m[1]]) ? Debugger::$consoleColors[$m[1]] : '0') . "m";
 				}, $output);

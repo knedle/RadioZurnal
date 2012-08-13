@@ -35,3 +35,8 @@ a[href^="error:"] {
 .dn {
     display: none;
 }
+
+.hlasovani {
+    width: 74px;
+    margin: auto;
+}

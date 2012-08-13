@@ -60,8 +60,14 @@ common:
 		interpretSongs:
 			factory: @database::table(interpret_song)
 
+		logs:
+			factory: @database::table(log)
+
+		ratings:
+			factory: @database::table(rating)
+
 	factories:
-		#interpretSongs: @database::table(interpret_song)
+
 
 production < common:
 
