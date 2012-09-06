@@ -77,7 +77,7 @@
                     {/if}                      
                 {/if}                
             </th>
-            <th class="ac" n:if="$showRating">hlasuj</th>
+            <th class="ac" n:if="$showRating" title="Počet hlasů u písní tohoto dne: {$todayRatingCount}">hlasuj</th>
             <th class="ac span2">více...</th>
             <td n:if="$user->isLoggedIn()" class="ac span1"> </td>            
         </tr>

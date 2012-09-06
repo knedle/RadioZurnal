@@ -1,12 +1,13 @@
 {**
- * My Application layout template.
+ * Playlist Radiozurnalu layout template.
  *
- * @copyright  Copyright (c) 2010 John Doe
- * @package    MyApplication
+ * @copyright  Copyright (c) 2012 @3knedle
+ * @package    Playlist Radiozurnalu
  *
  * @param string   $basePath web base path
  * @param string   $robots   tell robots how to index the content of a page (optional)
  * @param array    $flashes  flash messages
+ * @param boolean  $productionMode  production or localhost? set in BasePresenter.php
  *}
 
 <!DOCTYPE html>
@@ -33,7 +34,7 @@
         <script type="text/javascript" src="{$basePath}/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="{$basePath}/js/jwerty.js"></script>
 
-        <script type="text/javascript">
+        <script n:if="$productionMode" type="text/javascript">
         /* <![CDATA[ */
             (function() {
                 var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
@@ -71,7 +72,7 @@
                 <a href="http://prehravac.rozhlas.cz/radiozurnal" title="Radiožurnál - online rádio" target="_blank"><img src="{$basePath}/images/radiozurnal-jen-logo-modre.png"></a>
                 </div>                
 
-                <div class="span1 ac">
+                <div n:if="$productionMode" class="span1 ac">
                     <span class=""><a class="FlattrButton" style="display:none;" href="http://radiozurnal.3tecky.cz"></a>
                         <noscript><a href="http://flattr.com/thing/563364/Playlist-Radiozurnalu" target="_blank">
                             <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript></span>                    
@@ -91,7 +92,6 @@
                 {/form searchForm}
             {/if}
 
-
             <div class="navbar">
                 <div class="navbar-inner">
                     <div class="container">
@@ -103,6 +103,8 @@
                             <li n:class="$presenter->isLinkCurrent('Playlist:statsBy', interpret)?active"><a n:href="playlist:statsBy, interpret">počty songů na interpreta</a></li>
                             <li n:class="$presenter->isLinkCurrent('Playlist:statsBy', playedInterpret)?active"><a n:href="playlist:statsBy, playedInterpret">hranost interpreta</a></li>
                             <li n:class="$presenter->isLinkCurrent('Playlist:statsBy', playedSong)?active"><a n:href="playlist:statsBy, playedSong">hranost songů</a></li>
+                            <li n:class="$presenter->isLinkCurrent('Playlist:rating', interpret)?active"><a n:href="playlist:rating, interpret">hodnocení interpretů</a></li>
+                            <li n:class="$presenter->isLinkCurrent('Playlist:rating', interpretSong)?active"><a n:href="playlist:rating, interpretSong">hodnocení songů</a></li>
                         </ul>
                         <ul class="nav pull-right">
                             <li n:if="!$user->isLoggedIn()"><a n:href="Sign:in" title="Přihlášení"><i class="icon-lock"></i></a></li>
@@ -151,6 +153,7 @@
 
             </div>
 
+<div  n:if="$productionMode" >
             <div id="disqus_thread"></div>
             <script type="text/javascript">
                 /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
@@ -165,6 +168,7 @@
             </script>
             <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
             <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+        </div>
 
             <div class="well">
                 <p>

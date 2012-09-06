@@ -7,9 +7,9 @@
  * @package    Radiozurnal
  */
 use Nette\Application\UI\Form,
-    Nette\Utils\Strings,
-    Nette\Application as NA,
-    Nette\Diagnostics;
+Nette\Utils\Strings,
+Nette\Application as NA,
+Nette\Diagnostics;
 
 class PlaylistPresenter extends BasePresenter {
 
@@ -84,28 +84,28 @@ class PlaylistPresenter extends BasePresenter {
 
         switch ($by) {
             case Playlist::AGGREGATION_INTERPRET:
-                $this->setView('statsByInterpret');
-                $this->template->interpretList = $this->getService('interprets')->fetchPairs("id", "name");
-                break;
+            $this->setView('statsByInterpret');
+            $this->template->interpretList = $this->getService('interprets')->fetchPairs("id", "name");
+            break;
             case Playlist::AGGREGATION_INTERPRET_PLAYED:
-                $this->template->interpretList = $this->getService('interprets')->fetchPairs("id", "name");
-                $this->setView('statsByInterpretPlayed');
-                break;
+            $this->template->interpretList = $this->getService('interprets')->fetchPairs("id", "name");
+            $this->setView('statsByInterpretPlayed');
+            break;
             case Playlist::AGGREGATION_SONG_PLAYED:
-                $limit = 100;
-                $this->template->topLimit = $limit;
-                $this->template->interpretSongs->order('counter DESC, interpret.name ASC, song.title ASC')->limit($limit);
-                $this->setView('statsBySongPlayed');
-                break;
+            $limit = 100;
+            $this->template->topLimit = $limit;
+            $this->template->interpretSongs->order('counter DESC, interpret.name ASC, song.title ASC')->limit($limit);
+            $this->setView('statsBySongPlayed');
+            break;
             case Playlist::AGGREGATION_YEAR:
-                $this->setView('statsByYear');
-                break;
+            $this->setView('statsByYear');
+            break;
             case Playlist::AGGREGATION_DECADE:
-                $this->setView('statsByDecade');
-                break;
+            $this->setView('statsByDecade');
+            break;
             default:
-                $this->setView('default');
-                break;
+            $this->setView('default');
+            break;
         }
     }
 
@@ -169,6 +169,63 @@ class PlaylistPresenter extends BasePresenter {
         $this->template->todayRatingCount = count($todayRatings);
     }
 
+    public function renderRating($by, $sort = null, $ascDesc = null) {        
+        $playlist = $this->getService('playlists');
+
+        $totalCount = $playlist->interpretSongs->count();
+
+        $yearCountDataSource = $playlist->loadAgregation($by);
+
+        $yearCount = $yearCountDataSource->fetchPairs("year", "yearCount");
+
+        switch ($by) {
+            case 'interpret':
+            $groupBy = 'interpret_id';
+            $showSongColumn = false;
+            break;
+            default: // interpretSong
+            $groupBy = 'interpret_id, song_id';
+            $showSongColumn = true;
+            break;
+        }     
+
+        switch ($sort) {
+            case 'likes':            
+            if (empty($ascDesc)) {
+                $ascDesc = "desc";
+            }
+            $order = 'likeRating ' . strtoupper($ascDesc);
+            break;
+            case 'votes':
+            $order = 'pocetHlasu DESC';            
+            break;
+            case 'plus':
+            $order = 'plusLike DESC';
+            break;
+            case 'minus':
+            $order = 'minusLike DESC';
+            break;
+            default:
+            $sort = 'likes';
+            $order = 'likeRating DESC';
+            break;
+        }
+
+        $this->template->ratings = $this
+        ->getService('ratings')
+        ->select('interpret_id, song_id, SUM(`like`) AS likeRating, COUNT(id) AS pocetHlasu, SUM(CASE WHEN `like` > 0 THEN 1 ELSE 0 END) AS plusLike, SUM(CASE WHEN `like` < 0 THEN 1 ELSE 0 END) AS minusLike')
+        ->group($groupBy)
+        ->order($order)
+        ->limit(50);
+        $this->template->showSort = false;
+        $this->template->summaryList = $yearCount;
+        $this->template->maxYearCount = max($yearCount);        
+        $this->template->showSongColumn = $showSongColumn;
+        $this->template->by = $by;
+        $this->template->ascDesc = $ascDesc;
+        $this->template->sort = $sort;
+    }
+
     /**
      *
      * @param type $data 
@@ -230,14 +287,14 @@ class PlaylistPresenter extends BasePresenter {
     public function handleSort($by, $ascDesc = 'asc') {
         switch ($by) {
             case "name":
-                $by = "interpret.name";
-                break;
+            $by = "interpret.name";
+            break;
             case "title":
-                $by = "song.title";
-                break;
+            $by = "song.title";
+            break;
             case "time":
-                $by = "created_at";
-                break;
+            $by = "created_at";
+            break;
         }
         $order = $by . ' ' . Strings::upper($ascDesc);
         if ($this->isAjax()) {
@@ -307,7 +364,7 @@ class PlaylistPresenter extends BasePresenter {
             $this->invalidateControl('list');
             $this->invalidateControl('addForm');
         } else {
-            
+
         }
     }
 
@@ -345,7 +402,7 @@ class PlaylistPresenter extends BasePresenter {
                         'id' => $song->id,
                         'label' => $song->title,
                         'value' => $song->title,
-                    );
+                        );
                 }
             }
         }
@@ -372,7 +429,7 @@ class PlaylistPresenter extends BasePresenter {
                         'id' => $interpret->id,
                         'label' => $interpret->name,
                         'value' => $interpret->name,
-                    );
+                        );
                 }
             }
         }
@@ -500,22 +557,22 @@ class PlaylistPresenter extends BasePresenter {
             $returnData = $playlist->addInterpretSong($interpret, $song);
             switch ($returnData) {
                 case 'detectedAndSave':
-                    $this->flashMessage('Song, který právě hraje (' . $interpret . ' - ' . $song . '), byl úspěšně identifikován a uložen do playlistu...');
-                    $redirect = 'today';
-                    break;
+                $this->flashMessage('Song, který právě hraje (' . $interpret . ' - ' . $song . '), byl úspěšně identifikován a uložen do playlistu...');
+                $redirect = 'today';
+                break;
                 case 'newSong':
-                    $this->flashMessage('Interpret známý (' . $interpret . '), píseň nová (' . $song . ') - píseň uložena do DB a song playlistu... Dobrý úlovek!');
-                    $redirect = 'today';
+                $this->flashMessage('Interpret známý (' . $interpret . '), píseň nová (' . $song . ') - píseň uložena do DB a song playlistu... Dobrý úlovek!');
+                $redirect = 'today';
                 case 'newInterpret':
-                    $this->flashMessage('Interpret nový (' . $interpret . '), píseň známá (' . $song . ') - interpret uložen do DB a song do playlistu... Dobrý úlovek!');
-                    $redirect = 'today';
+                $this->flashMessage('Interpret nový (' . $interpret . '), píseň známá (' . $song . ') - interpret uložen do DB a song do playlistu... Dobrý úlovek!');
+                $redirect = 'today';
                 case 'newInterpretAndSong':
                     // presmerovat na hlavni stranku
-                    $this->flashMessage('Identifikován zcela nový song (' . $interpret . ' - ' . $song . '), interpret i píseň uloženy do DB. Výborný úlovek!');
-                    $redirect = 'default';
-                    break;
+                $this->flashMessage('Identifikován zcela nový song (' . $interpret . ' - ' . $song . '), interpret i píseň uloženy do DB. Výborný úlovek!');
+                $redirect = 'default';
+                break;
                 default:
-                    break;
+                break;
             }
         } else {
             $this->flashMessage('Právě nic nehraje, Radiožurnál zapomněl napsat co hraje nebo data nebyla správně identifikována');
@@ -554,11 +611,11 @@ class PlaylistPresenter extends BasePresenter {
             }
             // vzdy smazat stav v db
             $result = $this->getService('ratings')
-                    ->where('interpret_id', $interpretId)
-                    ->where('song_id', $songId)
-                    ->where('user_hash', $userHash)
-                    ->where('day', new \Nette\Database\SqlLiteral('CURDATE()'))
-                    ->delete();
+            ->where('interpret_id', $interpretId)
+            ->where('song_id', $songId)
+            ->where('user_hash', $userHash)
+            ->where('day', new \Nette\Database\SqlLiteral('CURDATE()'))
+            ->delete();
 
             // zkontrolovat, zda bylo jen smazano
             if (!empty($ratings[$interpretId][$songId]) && $ratings[$interpretId][$songId] > 0 && $ratingStatus == 'plus') {
@@ -580,9 +637,9 @@ class PlaylistPresenter extends BasePresenter {
                     'user_hash' => $userHash,
                     'day' => new \Nette\Database\SqlLiteral('CURDATE()'),
                     'like' => $rStatus[$ratingStatus]
-                );
+                    );
                 $this->getService('ratings')
-                        ->insert($data);
+                ->insert($data);
             }
 //die($userHash);
             // upravit stav hlasovani
@@ -617,12 +674,12 @@ class PlaylistPresenter extends BasePresenter {
         // ruzne prohlizece nemusi mit vsechny, proto @
         @$hashSource =
                 //$_SERVER['HTTP_ACCEPT'] .
-                $_SERVER['HTTP_ACCEPT_ENCODING'] .
-                $_SERVER['HTTP_ACCEPT_CHARSET'] .
-                $_SERVER['HTTP_ACCEPT_LANGUAGE'] .
-                $_SERVER['HTTP_UA_CPU'] .
-                $_SERVER['HTTP_USER_AGENT'] .
-                $_SERVER['REMOTE_ADDR'];
+        $_SERVER['HTTP_ACCEPT_ENCODING'] .
+        $_SERVER['HTTP_ACCEPT_CHARSET'] .
+        $_SERVER['HTTP_ACCEPT_LANGUAGE'] .
+        $_SERVER['HTTP_UA_CPU'] .
+        $_SERVER['HTTP_USER_AGENT'] .
+        $_SERVER['REMOTE_ADDR'];
         return md5($hashSource);
     }
 

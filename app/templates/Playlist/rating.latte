@@ -1,0 +1,36 @@
+{* This is the welcome page, you can delete it *}
+
+{block content}
+
+<table class="table table-striped table-bordered table-condensed">
+<thead>
+	<tr style="background-color: #ddd">
+		<th>Interpret</th>
+		<th n:if="$showSongColumn">Song</th>
+		<th class="span2 ac">			
+			<a n:href="rating, $by, votes">Počet hlasů</a>
+		</th>
+		<th class="span2 ac">
+			{if $ascDesc == 'desc'}
+			<a n:href="rating, $by, likes, asc">Body celkem</a>
+			{else}
+			<a n:href="rating, $by, likes, desc">Body celkem</a>
+			{/if}
+		</th>
+		<th class="span2 ac"><a n:href="rating, $by, plus">Plus body</a></th>
+		<th class="span2 ac"><a n:href="rating, $by, minus">Mínus body</a></th>
+	</tr>
+</thead>
+<tbody n:if="$ratings">
+	<tr n:foreach="$ratings as $rating" >
+		<td>{$rating->interpret->name}</td>
+		<td n:if="$showSongColumn">{$rating->song->title}</td>
+		<td {if $sort == 'votes'}style="background-color: #ddd"{/if} class="ac">{$rating->pocetHlasu}</td>
+		<td {if $sort == 'likes'}style="background-color: #ddd"{/if} class="ac">{$rating->likeRating}</td>
+		<td {if $sort == 'plus'}style="background-color: #ddd"{/if} class="ac">{$rating->plusLike}</td>
+		<td {if $sort == 'minus'}style="background-color: #ddd"{/if} class="ac">{$rating->minusLike}</td>
+	</tr>
+</tbody>
+</table>
+
+{/block}
