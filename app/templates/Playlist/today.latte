@@ -9,6 +9,7 @@
 <p>Tento seznam 'hrálo dnes' je tvořen návštěvníky tohoto webu - jsou to skladby, které byly dnešního dne přidány do databáze
     nebo byly označeny kliknutím na ikonku 'právě hraje'.<br/>
     Vzhledem k tomu, že tyto akce nejsou pod žádnou kontrolou, nemusí být tento seznam pravdivý.</p>
+    <p>Radiožurnál oficiálně zveřejňuje svůj <a href="http://www.rozhlas.cz/radiozurnal/playlisty">playlist za poslední 2 dny</a></p>
 </div>
 
 <p>
@@ -89,12 +90,14 @@
         <tr n:foreach="$interpretSongs as $interpretSong" data-id='{?echo json_encode(array('song_id'=>$interpretSong->song_id,'interpret_id'=>$interpretSong->interpret_id))}' data-table="interpret_song">
             <td data-id="{$interpretSong->interpret->id}" data-column="name" data-table="interpret" class="showDN">
                 {$interpretSong->interpret->name}
-                <a href="{empty($basePath) ? '/' : $basePath}?keyword={$interpretSong->interpret->name|url}&find=najdi&do=searchForm-submit" class="dn"><i class="icon-search"></i></a>
+                <a href="{empty($basePath) ? '/' : $basePath}?keyword={$interpretSong->interpret->name|url}&find=najdi&do=searchForm-submit" class="dn" title='vyhledá tohoto interpreta'><i class="icon-search"></i></a>
+                <a n:href="history, $interpretSong->interpret_id" class="dn" title='zobrazit historii tohoto interpreta'><i class="icon-calendar"></i></a>
                 <span class="label fr {empty($interpretSong->interpret->alt) ? '' : 'label-info'}" data-column="alt" title="{$interpretSong->interpret->alt}">alt</span>
             </td>
             <td data-id="{$interpretSong->song->id}" data-column="title" data-table="song" class="showDN">
                 {$interpretSong->song->title}
-                <a href="{empty($basePath) ? '/' : $basePath}?keyword={$interpretSong->song->title|url}&find=najdi&do=searchForm-submit" class="dn"><i class="icon-search"></i></a>
+                <a href="{empty($basePath) ? '/' : $basePath}?keyword={$interpretSong->song->title|url}&find=najdi&do=searchForm-submit" class="dn" title='vyhledá tohoto songu'><i class="icon-search"></i></a>
+                <a n:href="history, $interpretSong->interpret_id, $interpretSong->song_id" class="dn"><i class="icon-calendar" title='zobrazit historii tohoto interpreta + songu'></i></a>
                 <span class="label fr {empty($interpretSong->song->alt) ? '' : 'label-info'}" data-column="alt" title="{$interpretSong->song->alt}">alt</span>
             </td>
             <td class="ac" data-column="year">{? echo !empty($years[$interpretSong->interpret_id][$interpretSong->song_id]) ? $years[$interpretSong->interpret_id][$interpretSong->song_id] : ''}</td>

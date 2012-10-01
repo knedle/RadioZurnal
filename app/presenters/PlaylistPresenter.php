@@ -226,6 +226,27 @@ class PlaylistPresenter extends BasePresenter {
         $this->template->sort = $sort;
     }
 
+
+    /**
+    */
+    public function renderHistory($interpret, $song = null) {
+        $playlist = $this->getService('playlists');
+        $dataSource = $playlist->logs->where('interpret_id', $interpret);
+        $interpret = $this->getService('interprets')->find($interpret)->fetch();
+        if (!empty($song)) {
+            $dataSource->where('song_id', $song);
+            $song = $this->getService('songs')->find($song)->fetch();
+        }
+
+        $this->template->interpretSongs = $dataSource->order('log.logtime DESC');
+        $this->template->showSongColumn = empty($song);
+        $this->template->rating = null;
+        $this->template->interpret = $interpret;
+        $this->template->song = $song;
+
+        //  dump($song);
+    }
+
     /**
      *
      * @param type $data 

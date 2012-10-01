@@ -10,153 +10,155 @@
  * @param boolean  $productionMode  production or localhost? set in BasePresenter.php
  *}
 
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <!DOCTYPE html>
+ <html>
+ <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-        <meta name="description" content="Nette Framework web application skeleton">
-        <meta name="robots" content="{$robots}" n:ifset="$robots">
+    <meta name="description" content="Nette Framework web application skeleton">
+    <meta name="robots" content="{$robots}" n:ifset="$robots">
 
-        <title>{block #title|striptags|trim}{/block}{ifset #title} ... {/ifset}Playlist Radiožurnálu</title>
+    <title>{block #title|striptags|trim}{/block}{ifset #title} ... {/ifset}Playlist Radiožurnálu</title>
 
-        <link rel="stylesheet" media="all" href="{$basePath}/css/screen.css" type="text/css">
-        <link rel="stylesheet" media="print" href="{$basePath}/css/print.css" type="text/css">
-        <link rel="stylesheet" media="" href="{$basePath}/css/bootstrap.css" type="text/css">
-        <link rel="stylesheet" media="" href="{$basePath}/css/bootstrap-responsive.min.css" type="text/css">
-        <link rel="stylesheet" media="" href="{$basePath}/css/redmond/jquery-ui-1.8.18.custom.css" type="text/css">
-        <!--link rel="shortcut icon" href="{$basePath}/favicon.ico" type="image/x-icon"-->
+    <link rel="stylesheet" media="all" href="{$basePath}/css/screen.css" type="text/css">
+    <link rel="stylesheet" media="print" href="{$basePath}/css/print.css" type="text/css">
+    <link rel="stylesheet" media="" href="{$basePath}/css/bootstrap.css" type="text/css">
+    <link rel="stylesheet" media="" href="{$basePath}/css/bootstrap-responsive.min.css" type="text/css">
+    <link rel="stylesheet" media="" href="{$basePath}/css/redmond/jquery-ui-1.8.18.custom.css" type="text/css">
+    <!--link rel="shortcut icon" href="{$basePath}/favicon.ico" type="image/x-icon"-->
 
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-        <script type="text/javascript" src="{$basePath}/js/netteForms.js"></script>
-        <script type="text/javascript" src="{$basePath}/js/jquery.nette.js"></script>
-        <script type="text/javascript" src="{$basePath}/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="{$basePath}/js/jwerty.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="{$basePath}/js/netteForms.js"></script>
+    <script type="text/javascript" src="{$basePath}/js/jquery.nette.js"></script>
+    <script type="text/javascript" src="{$basePath}/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{$basePath}/js/jwerty.js"></script>
 
-        <script n:if="$productionMode" type="text/javascript">
-        /* <![CDATA[ */
-            (function() {
-                var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
-                s.type = 'text/javascript';
-                s.async = true;
-                s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
-                t.parentNode.insertBefore(s, t);
-            })();        
-            
-        /* ]]> */</script>
+    <script n:if="$productionMode" type="text/javascript">
+    /* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();        
 
-	{block head}{/block}
-    </head>
+    /* ]]> */</script>
 
-    <body>
-        <script> document.body.className+=' js' </script>
+    {block head}{/block}
+</head>
 
-        <div class="container">
-            <div class="page-headerx row">
+<body>
+    <script> document.body.className+=' js' </script>
 
-                <div class="span7">                
-                    <h1>playlist Radiožurnálu</h1>
-                    <p>Český rozhlas 1 - Radiožurnál</p>
-                </div>
-                
-                <div class="span2 ac">
+    <div class="container">
+        <div class="page-headerx row">
+
+            <div class="span7">                
+                <h1>playlist Radiožurnálu</h1>
+                <p>Český rozhlas 1 - Radiožurnál</p>
+            </div>
+
+            <div class="span2 ac">
                 <a href="http://www.rozhlas.cz/" title="web Českého rozhlasu" target="_blank"><img src="{$basePath}/images/cesky-rozhlas-logo-bile.png"></a>
-                </div>
+            </div>
 
-                <div class="span1 ac">
+            <div class="span1 ac">
                 <a href="http://www.rozhlas.cz/radiozurnal/" title="web ČR1 Radiožurnálu" target="_blank"><img src="{$basePath}/images/radiozurnal-jen-logo-bile.png"></a>
-                </div>                 
-                
-                <div class="span1 ac">
+            </div>                 
+
+            <div class="span1 ac">
                 <a href="http://prehravac.rozhlas.cz/radiozurnal" title="Radiožurnál - online rádio" target="_blank"><img src="{$basePath}/images/radiozurnal-jen-logo-modre.png"></a>
-                </div>                
+            </div>                
 
-                <div n:if="$productionMode" class="span1 ac">
-                    <span class=""><a class="FlattrButton" style="display:none;" href="http://radiozurnal.3tecky.cz"></a>
-                        <noscript><a href="http://flattr.com/thing/563364/Playlist-Radiozurnalu" target="_blank">
-                            <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript></span>                    
-                </div>                
-            </div>
+            <div n:if="$productionMode" class="span1 ac">
+                <span class=""><a class="FlattrButton" style="display:none;" href="http://radiozurnal.3tecky.cz"></a>
+                    <noscript><a href="http://flattr.com/thing/563364/Playlist-Radiozurnalu" target="_blank">
+                        <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript></span>                    
+                    </div>                
+        </div>
 
-            {if $presenter->isLinkCurrent('Playlist:*')}
+                {if $presenter->isLinkCurrent('Playlist:*')}
                 {form searchForm class => "ac ajaxxSubmit well form-search"}
-                    {input keyword}
-                    {input find}    
-                    {if $presenter->isLinkCurrent('Playlist:default')}   
-                    {snippet addButoon span}
-                        <a n:href="addNew!" class="btn ajax"><i class="icon-plus-sign"></i> Přidej ručně</a>
-                    {/snippet}
-                    {/if}
-                    <a n:href="whatNowPlayed!" class="btn xajax"><i class="icon-question-sign"></i> Identifikuj, co právě hraje</a>                        
+                {input keyword}
+                {input find}    
+                {if $presenter->isLinkCurrent('Playlist:default')}   
+                {snippet addButoon span}
+                <a n:href="addNew!" class="btn ajax"><i class="icon-plus-sign"></i> Přidej ručně</a>
+                {/snippet}
+                {/if}
+                <a n:href="whatNowPlayed!" class="btn xajax"><i class="icon-question-sign"></i> Identifikuj, co právě hraje</a>                        
                 {/form searchForm}
-            {/if}
+                {/if}
 
-            <div class="navbar">
-                <div class="navbar-inner">
-                    <div class="container">
-                        <ul class="nav">
-                            <li n:class="$presenter->isLinkCurrent('Playlist:default') ? active"><a n:href="playlist:default">úvodní strana</a></li>                            
-                            <li n:class="$presenter->isLinkCurrent('Playlist:today')?active"><a n:href="playlist:today">hrálo dnes</a></li>
-                            <li n:class="$presenter->isLinkCurrent('Playlist:statsBy', year)?active"><a n:href="playlist:statsBy, year">songy podle roků</a></li>
-                            <li n:class="$presenter->isLinkCurrent('Playlist:statsBy', decade)?active"><a n:href="playlist:statsBy, decade">songy podle dekád</a></li>
-                            <li n:class="$presenter->isLinkCurrent('Playlist:statsBy', interpret)?active"><a n:href="playlist:statsBy, interpret">počty songů na interpreta</a></li>
-                            <li n:class="$presenter->isLinkCurrent('Playlist:statsBy', playedInterpret)?active"><a n:href="playlist:statsBy, playedInterpret">hranost interpreta</a></li>
-                            <li n:class="$presenter->isLinkCurrent('Playlist:statsBy', playedSong)?active"><a n:href="playlist:statsBy, playedSong">hranost songů</a></li>
-                            <li n:class="$presenter->isLinkCurrent('Playlist:rating', interpret)?active"><a n:href="playlist:rating, interpret">hodnocení interpretů</a></li>
-                            <li n:class="$presenter->isLinkCurrent('Playlist:rating', interpretSong)?active"><a n:href="playlist:rating, interpretSong">hodnocení songů</a></li>
-                        </ul>
-                        <ul class="nav pull-right">
-                            <li n:if="!$user->isLoggedIn()"><a n:href="Sign:in" title="Přihlášení"><i class="icon-lock"></i></a></li>
-                            <li n:if="$user->isLoggedIn()"><a n:href="Sign:out">Odhlásit</a></li>
-                        </ul>                        
+                <div class="navbar">
+                    <div class="navbar-inner">
+                        <div class="container">
+                            <ul class="nav">
+                                <li n:class="$presenter->isLinkCurrent('Playlist:default') ? active"><a n:href="playlist:default">úvodní strana</a></li>                            
+                                <li n:class="$presenter->isLinkCurrent('Playlist:today')?active"><a n:href="playlist:today">hrálo dnes</a></li>
+                                <li n:class="$presenter->isLinkCurrent('Playlist:statsBy', year)?active"><a n:href="playlist:statsBy, year">songy podle roků</a></li>
+                                <li n:class="$presenter->isLinkCurrent('Playlist:statsBy', decade)?active"><a n:href="playlist:statsBy, decade">songy podle dekád</a></li>
+                                <li n:class="$presenter->isLinkCurrent('Playlist:statsBy', interpret)?active"><a n:href="playlist:statsBy, interpret">počty songů na interpreta</a></li>
+                                <li n:class="$presenter->isLinkCurrent('Playlist:statsBy', playedInterpret)?active"><a n:href="playlist:statsBy, playedInterpret">hranost interpreta</a></li>
+                                <li n:class="$presenter->isLinkCurrent('Playlist:statsBy', playedSong)?active"><a n:href="playlist:statsBy, playedSong">hranost songů</a></li>
+                                <li n:class="$presenter->isLinkCurrent('Playlist:rating', interpret)?active"><a n:href="playlist:rating, interpret">hodnocení interpretů</a></li>
+                                <li n:class="$presenter->isLinkCurrent('Playlist:rating', interpretSong)?active"><a n:href="playlist:rating, interpretSong">hodnocení songů</a></li>
+                            </ul>
+                            <ul class="nav pull-right">
+                                <li n:if="!$user->isLoggedIn()"><a n:href="Sign:in" title="Přihlášení"><i class="icon-lock"></i></a></li>
+                                <li n:if="$user->isLoggedIn()"><a n:href="Sign:out">Odhlásit</a></li>
+                            </ul>                        
+                        </div>
                     </div>
-                </div>
-            </div>            
+                </div>            
 
-            <div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>            
+                <div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>            
 
-	{include #content}
+                {include #content}
 
-        {if $presenter->isLinkCurrent('Playlist:default')}            
+                {if $presenter->isLinkCurrent('Playlist:default')}            
 
-        {snippet addForm}
-            {if (!count($interpretSongs) || !empty($showAddForm) )}
+                {snippet addForm}
+                {if (!count($interpretSongs) || !empty($showAddForm) )}
                 {form songSaveForm class => "ac"}
-                    {input interpret}
-                    {input song}
-                    {input year}
-                    {input save}
-                    {input cancel}
+                {input interpret}
+                {input song}
+                {input year}
+                {input save}
+                {input cancel}
                 {/form songSaveForm}   
-            {/if}
-        {/snippet}
+                {/if}
+                {/snippet}
 
-        {/if}
+                {/if}
 
-            <div class="hero-unit">
-                <h2 n:if="(!empty($totalCount))" class="ac">Zbývá identifikovat ~{?echo($finalCount-$totalCount)} skladeb</h2>
+                {*
+                <div class="hero-unit">
+                    <h2 n:if="(!empty($totalCount))" class="ac">Zbývá identifikovat ~{?echo($finalCount-$totalCount)} skladeb</h2>
 
 
-                <p> 
-                    V článku Lidových novin z 9. ledna 2012
-                    <a href="http://www.lidovky.cz/vysilame-malo-skladeb-priznal-sef-ceskeho-rozhlasu-fxz-/ln-media.asp?c=A120108_153143_ln-media_rka">Vysíláme málo skladeb, přiznal šéf Českého rozhlasu</a>
-                    bylo generálním ředitelem Českého rozhlasu Peterem Duhanem uvedeno, že playlist Radiožurnálu má okolo 890 skladeb.
-                </p>
+                    <p> 
+                        V článku Lidových novin z 9. ledna 2012
+                        <a href="http://www.lidovky.cz/vysilame-malo-skladeb-priznal-sef-ceskeho-rozhlasu-fxz-/ln-media.asp?c=A120108_153143_ln-media_rka">Vysíláme málo skladeb, přiznal šéf Českého rozhlasu</a>
+                        bylo generálním ředitelem Českého rozhlasu Peterem Duhanem uvedeno, že playlist Radiožurnálu má okolo 890 skladeb.
+                    </p>
 
-                <p>
-                    A novější informace - odpověd na můj dotaz na twitteru:<br />
-                    <a href="https://twitter.com/#!/3knedle/status/175238636458094592">@rozanek</a>: <i>To je proces na delší dobu, ale v lednu jich bylo kolem 950, těch 890 byl prosinec. Nic bližšího nevím.</i>
-                </p>    
+                    <p>
+                        A novější informace - odpověd na můj dotaz na twitteru:<br />
+                        <a href="https://twitter.com/#!/3knedle/status/175238636458094592">@rozanek</a>: <i>To je proces na delší dobu, ale v lednu jich bylo kolem 950, těch 890 byl prosinec. Nic bližšího nevím.</i>
+                    </p>    
 
-        <!--h2 class="ac">Zkusme je vyjmenovat!</h2-->
+                    <!--h2 class="ac">Zkusme je vyjmenovat!</h2-->
 
-            </div>
+                </div>
+                *}
 
-<div  n:if="$productionMode" >
-            <div id="disqus_thread"></div>
-            <script type="text/javascript">
-                /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+                <div  n:if="$productionMode" >
+                    <div id="disqus_thread"></div>
+                    <script type="text/javascript">
+                    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
                 var disqus_shortname = 'radiozurnal3teckycz'; // required: replace example with your forum shortname
 
                 /* * * DON'T EDIT BELOW THIS LINE * * */
@@ -165,11 +167,12 @@
                     dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
                     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
                 })();
-            </script>
-            <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-            <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
-        </div>
+                </script>
+                <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+                </div>
 
+            {*
             <div class="well">
                 <p>
                     <b>Jak získávat skladby? </b><br/>
@@ -181,45 +184,82 @@
                     Pokud ji najdete, potvrďte její hranost přes ikonku <a class="btn"><i class="icon-headphones"></i></a>, je-li k dispozici...
                 </p>
             </div>
+            *}
 
-        {snippet modalForm}
+
+            <div class="navbar">
+                <div class="navbar-inner">
+                    <div class="container">
+                        {*
+                        <ul class="nav">
+                            <li class="">
+                                <a href="http://paylibo.com/">Smartplatba</a>
+                            </li>
+                            <li class="">
+                                <a href="http://paylibo.com/development/restful-api/">Smartplatba restful API specifikace</a>
+                            </li>
+                            <li class="">
+                                <a href="https://github.com/smartpayment/paylibo-restapi/">Smartplatba restful API / GitHub</a>
+                            </li>                                                        
+                        </ul>  
+                        *}
+                        <ul class="nav pull-right">
+                            <li class="">
+                                <a href="https://github.com/knedle/RadioZurnal">RadioZurnal / GitHub</a>
+                            </li>                              
+                            <li class="active">
+                                <a>by</a>
+                            </li>                                                                   
+                            <li class="">
+                                <a href="https://twitter.com/3knedle">@3knedle</a>
+                            </li>                                                         
+                        </ul>  
+
+                    </div>
+                </div>
+            </div class="navbar">
+
+
+            {snippet modalForm}
             <div class="modal hide fade" id="myModal">
                 <div class="modal-header">
                     <a class="close" data-dismiss="modal">×</a>
                     <h3>Editace hodnoty</h3>
                 </div>
                 <div n:if="(!empty($totalCount))" class="modal-body">
-                {control modalEditForm}        
+                    {control modalEditForm}        
                 </div>
                 <div class="modal-footer">
             <!--        <a href="#" class="btn btn-primary">Save changes</a>
-                    <a href="#" class="btn">Close</a>-->
-                </div>
-            </div>
-
-        {if !empty($hideModalBackground)}
-            <script type="text/javascript">
-             $('.modal-backdrop').remove();
-            </script>    
-        {/if}
-
-        {/snippet}            
-
+            <a href="#" class="btn">Close</a>-->
         </div>
+    </div class="modal hide fade">
 
-        <script type="text/javascript">
+    {if !empty($hideModalBackground)}
+    <script type="text/javascript">
+    $('.modal-backdrop').remove();
+    </script>    
+    {/if}
 
-          var _gaq = _gaq || [];
-          _gaq.push(['_setAccount', 'UA-314942-32']);
-          _gaq.push(['_trackPageview']);
+    {/snippet}                        
 
-          (function() {
-            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-          })();
+</div> 
 
-        </script>
 
-    </body>
+
+<script type="text/javascript">
+
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-314942-32']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
+</script>
+
+</body>
 </html>

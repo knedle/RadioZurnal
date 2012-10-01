@@ -1,0 +1,65 @@
+{block content}
+
+<h1 n:block="title">Historie: {$interpret->name} {if !empty($song)} - {$song->title}{/if}</h1>
+
+<p>Počet zobrazených záznamů: {count($interpretSongs)}</p>
+
+<table class="table table-striped table-bordered table-condensed">
+<thead>
+	<tr style="background-color: #ddd">
+		<th class="span2 ac">Datum</a></th>
+		<th>Interpret</th>
+		<th >Song</th>
+		{*
+		<th class="span2 ac">Počet hlasů</a></th>
+		<th class="span2 ac">Body celkem</th>
+		<th class="span2 ac">Plus body</th>
+		<th class="span2 ac">Mínus body</th>
+		*}
+	</tr>
+</thead>
+<tbody n:if="$interpretSongs">
+	<tr n:foreach="$interpretSongs as $interpretSong" >
+		<td>{$interpretSong->logtime|date:'%d.%m.%Y %H:%M'}</td>
+		<td class="showDN span6">
+			{$interpretSong->interpret->name}
+			{if !empty($song)}
+			<a n:href="history, $interpretSong->interpret_id" class="dn" title='zobrazit historii tohoto interpreta'><i class="icon-calendar"></i></a>
+			{/if}
+		</td>
+		<td class="showDN">
+			{$interpretSong->song->title}
+			{if empty($song)}
+			<a n:href="history, $interpretSong->interpret_id, $interpretSong->song_id" class="dn" title='zobrazit historii tohoto interpreta + songu'><i class="icon-calendar"></i></a>
+			{/if}
+		</td>
+		{*
+		<td class="ac">{*$rating->pocetHlasu* }</td>
+		<td class="ac">{*$rating->likeRating* }</td>
+		<td class="ac">{*$rating->plusLike* }</td>
+		<td class="ac">{*$rating->minusLike* }</td>
+		*}
+	</tr>
+</tbody>
+</table>
+
+{/block}
+
+{block head}
+<style>
+
+</style>
+<script>
+    $(document).ready(function(){
+        $(".showDN").hover(
+              function () {
+                $('.dn', $(this)).show();
+              }, 
+              function () {
+                $('.dn', $(this)).hide();
+              }                            
+        );
+        
+    });
+</script>
+{/block}
