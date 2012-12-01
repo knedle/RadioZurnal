@@ -189,7 +189,17 @@ class Playlist extends Nette\Object {
             // loguju
             $todayLogs = $this->logs->where('interpret_id', $interpretId)->where('song_id', $songId)->where('logtime + INTERVAL 10 MINUTE > ?', new \Nette\Database\SqlLiteral('NOW()'));
             if (!count($todayLogs)) {
-                $this->logs->insert(array('interpret_id' => $interpretId, 'song_id' => $songId, 'logtime' => new \Nette\Database\SqlLiteral('NOW()')));
+
+
+                $this->logs->insert(
+                    array(
+                        'interpret_id' => $interpretId, 
+                        'song_id' => $songId, 
+                        'logtime' => new \Nette\Database\SqlLiteral('NOW()'), 
+                        'ip'=>$_SERVER['REMOTE_ADDR'], 
+                        'browser_hash'=>$this->getHash()
+                        )
+                    );
             }
         }
         return $result;
@@ -315,6 +325,19 @@ class Playlist extends Nette\Object {
         }
         return $this->interpretSongs;
     }
+
+    private function getHash() {
+        // ruzne prohlizece nemusi mit vsechny, proto @
+        @$hashSource =
+                //$_SERVER['HTTP_ACCEPT'] . // nepouzivat, pokud volam i pod ajaxem
+                $_SERVER['HTTP_ACCEPT_ENCODING'] .
+                $_SERVER['HTTP_ACCEPT_CHARSET'] .
+                $_SERVER['HTTP_ACCEPT_LANGUAGE'] .
+                $_SERVER['HTTP_UA_CPU'] .
+                $_SERVER['HTTP_USER_AGENT'] .
+                $_SERVER['REMOTE_ADDR'];
+        return md5($hashSource);
+    }    
 
 }
 
