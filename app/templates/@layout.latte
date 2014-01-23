@@ -18,7 +18,7 @@
     <meta name="description" content="Nette Framework web application skeleton">
     <meta name="robots" content="{$robots}" n:ifset="$robots">
 
-    <title>{block #title|striptags|trim}{/block}{ifset #title} ... {/ifset}Playlist Radiožurnálu</title>
+    <title>{block #title|striptags|trim}{/block}{ifset #title} ... {/ifset}{$texts[title]}</title>
 
     <link rel="stylesheet" media="all" href="{$basePath}/css/screen.css" type="text/css">
     <link rel="stylesheet" media="print" href="{$basePath}/css/print.css" type="text/css">
@@ -56,8 +56,8 @@
         <div class="page-headerx row">
 
             <div class="span7">                
-                <h1>playlist Radiožurnálu</h1>
-                <p>Český rozhlas 1 - Radiožurnál</p>
+                <h1>{$texts[title]}</h1>
+                <p>{$texts[long]}</p>
             </div>
 
             <div class="span2 ac">
@@ -65,11 +65,11 @@
             </div>
 
             <div class="span1 ac">
-                <a href="http://www.rozhlas.cz/radiozurnal/" title="web ČR1 Radiožurnálu" target="_blank"><img src="{$basePath}/images/radiozurnal-jen-logo-bile.png"></a>
+                <a href="{$urls[web]}" title="web {$texts[web]}" target="_blank"><img src="{$basePath}/images/radiozurnal-jen-logo-bile.png"></a>
             </div>                 
 
             <div class="span1 ac">
-                <a href="http://prehravac.rozhlas.cz/radiozurnal" title="Radiožurnál - online rádio" target="_blank"><img src="{$basePath}/images/radiozurnal-jen-logo-modre.png"></a>
+                <a href="{$urls[prehravac]}" title="{$texts[short]} - online rádio" target="_blank"><img src="{$basePath}/images/radiozurnal-jen-logo-modre.png"></a>
             </div>                
 
             <div n:if="$productionMode" class="span1 ac">
@@ -77,16 +77,16 @@
                     <noscript><a href="http://flattr.com/thing/563364/Playlist-Radiozurnalu" target="_blank">
                         <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript></span>                    
                     </div>                
-        </div>
+            </div>
 
                 {if $presenter->isLinkCurrent('Playlist:*')}
                 {form searchForm class => "ac ajaxxSubmit well form-search"}
                 {input keyword}
                 {input find}    
                 {if $presenter->isLinkCurrent('Playlist:default')}   
-                {snippet addButoon span}
+                {*snippet addButoon span}
                 <a n:href="addNew!" class="btn ajax"><i class="icon-plus-sign"></i> Přidej ručně</a>
-                {/snippet}
+                {/snippet*}
                 {/if}
                 <a n:href="whatNowPlayed!" class="btn xajax"><i class="icon-question-sign"></i> Identifikuj, co právě hraje</a>                        
                 {/form searchForm}
@@ -118,7 +118,7 @@
 
                 {include #content}
 
-                {if $presenter->isLinkCurrent('Playlist:default')}            
+                {*if $presenter->isLinkCurrent('Playlist:default')}            
 
                 {snippet addForm}
                 {if (!count($interpretSongs) || !empty($showAddForm) )}
@@ -132,7 +132,7 @@
                 {/if}
                 {/snippet}
 
-                {/if}
+                {/if*}
 
                 {*
                 <div class="hero-unit">
@@ -246,11 +246,12 @@
 </div> 
 
 
+{if !empty($webservices[googleAnalyticsCode])}
 
 <script type="text/javascript">
 
 var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-314942-32']);
+_gaq.push(['_setAccount', {$webservices[googleAnalyticsCode]}]);
 _gaq.push(['_trackPageview']);
 
 (function() {
@@ -260,6 +261,8 @@ _gaq.push(['_trackPageview']);
 })();
 
 </script>
+
+{/if}
 
 </body>
 </html>

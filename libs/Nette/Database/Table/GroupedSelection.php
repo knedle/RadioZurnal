@@ -63,9 +63,6 @@ class GroupedSelection extends Selection
 	{
 		$this->rows = NULL;
 		$this->active = $active;
-		$this->select = $this->where = $this->conditions = $this->parameters = $this->order = array();
-		$this->limit = $this->offset = NULL;
-		$this->group = $this->having = '';
 		return $this;
 	}
 

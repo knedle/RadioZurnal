@@ -21,13 +21,13 @@ use Nette,
  *
  * @author     David Grudl
  *
- * @property-read CompilerExtension[] $extensions
+ * @property-read array $extensions
  * @property-read Nette\DI\ContainerBuilder $containerBuilder
  * @property-read array $config
  */
 class Compiler extends Nette\Object
 {
-	/** @var CompilerExtension[] */
+	/** @var array of CompilerExtension */
 	private $extensions = array();
 
 	/** @var Nette\DI\ContainerBuilder */
@@ -113,13 +113,13 @@ class Compiler extends Nette\Object
 
 	public function processExtensions()
 	{
-		foreach ($this->extensions as $name => $extension) {
-			$extension->loadConfiguration();
-		}
-
 		if ($extra = array_diff_key($this->config, self::$reserved, $this->extensions)) {
 			$extra = implode("', '", array_keys($extra));
 			throw new Nette\InvalidStateException("Found sections '$extra' in configuration, but corresponding extensions are missing.");
+		}
+
+		foreach ($this->extensions as $name => $extension) {
+			$extension->loadConfiguration();
 		}
 	}
 
@@ -156,7 +156,6 @@ class Compiler extends Nette\Object
 	{
 		foreach ($this->extensions as $extension) {
 			$extension->beforeCompile();
-			$this->container->addDependency(Nette\Reflection\ClassType::from($extension)->getFileName());
 		}
 
 		$classes[] = $class = $this->container->generateClass($parentName);
@@ -221,7 +220,7 @@ class Compiler extends Nette\Object
 				$definition = $container->addDefinition($name);
 				if ($parent !== Helpers::OVERWRITE) {
 					foreach ($container->getDefinition($parent) as $k => $v) {
-						$definition->$k = unserialize(serialize($v)); // deep clone
+						$definition->$k = $v;
 					}
 				}
 			} elseif ($container->hasDefinition($name)) {

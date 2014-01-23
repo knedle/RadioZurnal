@@ -402,7 +402,7 @@ class DefaultFormRenderer extends Nette\Object implements Nette\Forms\IFormRende
 
 	/**
 	 * Renders single visual row of multiple controls.
-	 * @param  IFormControl[]
+	 * @param  array of IFormControl
 	 * @return string
 	 */
 	public function renderPairMulti(array $controls)

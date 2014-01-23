@@ -48,7 +48,7 @@ abstract class AutoLoader extends Nette\Object
 
 	/**
 	 * Return all registered autoloaders.
-	 * @return AutoLoader[]
+	 * @return array of AutoLoader
 	 */
 	final public static function getLoaders()
 	{

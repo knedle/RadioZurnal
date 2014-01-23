@@ -9,9 +9,29 @@ common:
 		database:
 			driver: mysql
 			host: localhost
-			dbname: radiozurnal
+			dbname: dvojka
+#			dbname: radiozurnal
 			user: root
 			password:
+		urls:
+#			oficialniPlaylist: http://www.rozhlas.cz/dvojka/playlisty
+#			sourceUrl: http://static.rozhlas.cz/onair/data/v5/station_dvojka.js
+#			prehravac: http://prehravac.rozhlas.cz/dvojka
+#			web: http://www.rozhlas.cz/dvojka/
+			oficialniPlaylist: http://www.rozhlas.cz/radiozurnal/playlisty
+#			sourceUrl: http://www2.rozhlas.cz:81/gselector/player_radiozurnal.js 
+			sourceUrl: http://static.rozhlas.cz/onair/data/v5/station_radiozurnal.js
+			prehravac: http://prehravac.rozhlas.cz/radiozurnal
+			web: http://www.rozhlas.cz/radiozurnal/
+
+		texts:
+			title: Playlist Radiožurnálu
+			short: Radiožurnál
+			long: Český rozhlas 1 - Radiožurnál
+			web: ČR1 Radiožurnálu
+
+		webservices:
+			googleAnalyticsCode: UA-314942-32
 
 
 	php:

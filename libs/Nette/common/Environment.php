@@ -71,7 +71,7 @@ final class Environment
 	public static function isProduction()
 	{
 		if (self::$productionMode === NULL) {
-			self::$productionMode = !Nette\Config\Configurator::detectDebugMode();
+			self::$productionMode = Nette\Config\Configurator::detectProductionMode();
 		}
 		return self::$productionMode;
 	}
@@ -175,7 +175,7 @@ final class Environment
 
 	/**
 	 * Get initial instance of context.
-	 * @return \SystemContainer|Nette\DI\Container
+	 * @return Nette\DI\Container
 	 */
 	public static function getContext()
 	{
@@ -322,7 +322,7 @@ final class Environment
 		}
 		$configurator = new Nette\Config\Configurator;
 		$configurator
-			->setDebugMode(!self::isProduction())
+			->setProductionMode(self::isProduction())
 			->setTempDirectory(defined('TEMP_DIR') ? TEMP_DIR : '');
 		if ($file) {
 			$configurator->addConfig($file, $section);
@@ -330,7 +330,7 @@ final class Environment
 		self::$context = $configurator->createContainer();
 
 		self::$createdAt = '?';
-		foreach (debug_backtrace(FALSE) as $row) {
+		foreach (/*5.2*PHP_VERSION_ID < 50205 ? debug_backtrace() : */debug_backtrace(FALSE) as $row) {
 			if (isset($row['file']) && is_file($row['file']) && strpos($row['file'], NETTE_DIR . DIRECTORY_SEPARATOR) !== 0) {
 				self::$createdAt = "$row[file]:$row[line]";
 				break;

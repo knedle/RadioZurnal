@@ -23,7 +23,7 @@ use Nette,
  * @property-read array $defaultParameters
  * @property-read bool $closure
  * @property-read Extension $extension
- * @property-read Parameter[] $parameters
+ * @property-read array $parameters
  * @property-read bool $disabled
  * @property-read bool $deprecated
  * @property-read bool $internal
@@ -37,7 +37,7 @@ use Nette,
  * @property-read int $numberOfParameters
  * @property-read int $numberOfRequiredParameters
  * @property-read string $shortName
- * @property-read int $startLine
+ * @property-read intr $startLine
  * @property-read array $staticVariables
  */
 class GlobalFunction extends \ReflectionFunction
@@ -91,9 +91,6 @@ class GlobalFunction extends \ReflectionFunction
 
 
 
-	/**
-	 * @return Parameter[]
-	 */
 	public function getParameters()
 	{
 		foreach ($res = parent::getParameters() as $key => $val) {
@@ -111,9 +108,9 @@ class GlobalFunction extends \ReflectionFunction
 	/**
 	 * @return ClassType
 	 */
-	public static function getReflection()
+	public /**/static/**/ function getReflection()
 	{
-		return new ClassType(get_called_class());
+		return new ClassType(/*5.2*$this*//**/get_called_class()/**/);
 	}
 
 

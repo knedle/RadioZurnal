@@ -2,6 +2,9 @@ Playlist Radiožurnálu
 =======================
 http://radiozurnal.3tecky.cz
 
+a také playlist ČR2 Dvojka
+http://dvojka.3tecky.cz
+
 by @3knedle
 http://blog.3tecky.cz
 
@@ -29,3 +32,8 @@ V plánu
 
 - překopat "dnes hrálo" na kompletní log hraných skladeb (včera...) - tab logs
 - překopat statistiky - udělat je nad tab logs
+
+Historie
+--------
+
+- 23.1.2014 - zprovozněno pro ČR2 Dvojka; upraveno grabování (nový zdroj), nastavení (texty, url) do config.neon

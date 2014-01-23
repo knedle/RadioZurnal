@@ -104,7 +104,7 @@ class Form extends Container
 	/** @var Nette\Localization\ITranslator */
 	private $translator;
 
-	/** @var ControlGroup[] */
+	/** @var array of ControlGroup */
 	private $groups = array();
 
 	/** @var array */
@@ -121,7 +121,6 @@ class Form extends Container
 		$this->element = Nette\Utils\Html::el('form');
 		$this->element->action = ''; // RFC 1808 -> empty uri means 'this'
 		$this->element->method = self::POST;
-		$this->element->id = $name === NULL ? NULL : 'frm-' . $name;
 
 		$this->monitor(__CLASS__);
 		if ($name !== NULL) {
@@ -287,7 +286,7 @@ class Form extends Container
 
 	/**
 	 * Returns all defined groups.
-	 * @return FormGroup[]
+	 * @return array of FormGroup
 	 */
 	public function getGroups()
 	{

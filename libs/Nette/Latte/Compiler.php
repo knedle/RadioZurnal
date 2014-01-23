@@ -26,7 +26,7 @@ class Compiler extends Nette\Object
 	/** @var string default content type */
 	public $defaultContentType = self::CONTENT_XHTML;
 
-	/** @var Token[] */
+	/** @var array of Token */
 	private $tokens;
 
 	/** @var string pointer to current node content */
@@ -35,16 +35,16 @@ class Compiler extends Nette\Object
 	/** @var int  position on source template */
 	private $position;
 
-	/** @var array of [name => IMacro[]] */
+	/** @var array of [name => array of IMacro] */
 	private $macros;
 
 	/** @var \SplObjectStorage */
 	private $macroHandlers;
 
-	/** @var HtmlNode[] */
+	/** @var array of HtmlNode */
 	private $htmlNodes = array();
 
-	/** @var MacroNode[] */
+	/** @var array of MacroNode */
 	private $macroNodes = array();
 
 	/** @var array of string */
@@ -71,7 +71,8 @@ class Compiler extends Nette\Object
 	/** @internal Context-aware escaping states */
 	const CONTEXT_COMMENT = 'comment',
 		CONTEXT_SINGLE_QUOTED = "'",
-		CONTEXT_DOUBLE_QUOTED = '"';
+		CONTEXT_DOUBLE_QUOTED = '"',
+		CONTEXT_UNQUOTED = '=';
 
 
 	public function __construct()
@@ -116,6 +117,11 @@ class Compiler extends Nette\Object
 		try {
 			foreach ($tokens as $this->position => $token) {
 				if ($token->type === Token::TEXT) {
+					if (($this->context[0] === self::CONTEXT_SINGLE_QUOTED || $this->context[0] === self::CONTEXT_DOUBLE_QUOTED)
+						&& $token->text === $this->context[0])
+					{
+						$this->setContext(self::CONTEXT_UNQUOTED);
+					}
 					$this->output .= $token->text;
 
 				} elseif ($token->type === Token::MACRO_TAG) {
@@ -131,9 +137,6 @@ class Compiler extends Nette\Object
 
 				} elseif ($token->type === Token::HTML_ATTRIBUTE) {
 					$this->processHtmlAttribute($token);
-
-				} elseif ($token->type === Token::COMMENT) {
-					$this->processComment($token);
 				}
 			}
 		} catch (CompileException $e) {
@@ -247,13 +250,7 @@ class Compiler extends Nette\Object
 				if (!$htmlNode) {
 					$htmlNode = new HtmlNode($token->name);
 				}
-				if (strcasecmp($htmlNode->name, $token->name) === 0) {
-					break;
-				}
-				if ($htmlNode->macroAttrs) {
-					throw new CompileException("Unexpected </$token->name>.", 0, $token->line);
-				}
-			} while (TRUE);
+			} while (strcasecmp($htmlNode->name, $token->name));
 			$this->htmlNodes[] = $htmlNode;
 			$htmlNode->closing = TRUE;
 			$htmlNode->offset = strlen($this->output);
@@ -267,7 +264,7 @@ class Compiler extends Nette\Object
 			$htmlNode->isEmpty = in_array($this->contentType, array(self::CONTENT_HTML, self::CONTENT_XHTML))
 				&& isset(Nette\Utils\Html::$emptyElements[strtolower($token->name)]);
 			$htmlNode->offset = strlen($this->output);
-			$this->setContext(NULL);
+			$this->setContext(self::CONTEXT_UNQUOTED);
 		}
 		$this->output .= $token->text;
 	}
@@ -334,16 +331,6 @@ class Compiler extends Nette\Object
 				}
 				$this->setContext($token->value, $context);
 			}
-		}
-	}
-
-
-
-	private function processComment(Token $token)
-	{
-		$isLeftmost = trim(substr($this->output, strrpos("\n$this->output", "\n"))) === '';
-		if (!$isLeftmost) {
-			$this->output .= substr($token->text, strlen(rtrim($token->text, "\n")));
 		}
 	}
 

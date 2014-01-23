@@ -21,7 +21,7 @@ use Nette,
  *
  * @author     David Grudl
  *
- * @property   bool $debugMode
+ * @property   bool $productionMode
  * @property-write $tempDirectory
  */
 class Configurator extends Nette\Object
@@ -51,14 +51,13 @@ class Configurator extends Nette\Object
 
 
 	/**
-	 * Set parameter %debugMode%.
+	 * Set parameter %productionMode%.
 	 * @param  bool|string|array
 	 * @return Configurator  provides a fluent interface
 	 */
-	public function setDebugMode($value = TRUE)
+	public function setProductionMode($value = TRUE)
 	{
-		$this->parameters['debugMode'] = is_bool($value) ? $value : self::detectDebugMode($value);
-		$this->parameters['productionMode'] = !$this->parameters['debugMode']; // compatibility
+		$this->parameters['productionMode'] = is_bool($value) ? $value : self::detectProductionMode($value);
 		return $this;
 	}
 
@@ -67,9 +66,9 @@ class Configurator extends Nette\Object
 	/**
 	 * @return bool
 	 */
-	public function isDebugMode()
+	public function isProductionMode()
 	{
-		return !$this->parameters['productionMode'];
+		return $this->parameters['productionMode'];
 	}
 
 
@@ -106,14 +105,12 @@ class Configurator extends Nette\Object
 	 */
 	protected function getDefaultParameters()
 	{
-		$trace = debug_backtrace(FALSE);
-		$debugMode = static::detectDebugMode();
+		$trace = /*5.2*PHP_VERSION_ID < 50205 ? debug_backtrace() : */debug_backtrace(FALSE);
 		return array(
 			'appDir' => isset($trace[1]['file']) ? dirname($trace[1]['file']) : NULL,
 			'wwwDir' => isset($_SERVER['SCRIPT_FILENAME']) ? dirname($_SERVER['SCRIPT_FILENAME']) : NULL,
-			'debugMode' => $debugMode,
-			'productionMode' => !$debugMode,
-			'environment' => $debugMode ? self::DEVELOPMENT : self::PRODUCTION,
+			'productionMode' => static::detectProductionMode(),
+			'environment' => static::detectProductionMode() ? self::PRODUCTION : self::DEVELOPMENT,
 			'consoleMode' => PHP_SAPI === 'cli',
 			'container' => array(
 				'class' => 'SystemContainer',
@@ -187,7 +184,7 @@ class Configurator extends Nette\Object
 			if (!$cached) {
 				$code = $this->buildContainer($dependencies);
 				$cache->save($cacheKey, $code, array(
-					Cache::FILES => $dependencies,
+					Cache::FILES => $this->parameters['productionMode'] ? NULL : $dependencies,
 				));
 				$cached = $cache->load($cacheKey);
 			}
@@ -239,7 +236,7 @@ class Configurator extends Nette\Object
 			$this->parameters['container']['class'],
 			$config['parameters']['container']['parent']
 		);
-		$dependencies = array_merge($loader->getDependencies(), $this->isDebugMode() ? $compiler->getContainerBuilder()->getDependencies() : array());
+		$dependencies = array_merge($loader->getDependencies(), $compiler->getContainerBuilder()->getDependencies());
 		return $code;
 	}
 
@@ -301,43 +298,16 @@ class Configurator extends Nette\Object
 
 
 	/**
-	 * Detects debug mode by IP address.
+	 * Detects production mode by IP address.
 	 * @param  string|array  IP addresses or computer names whitelist detection
 	 * @return bool
 	 */
-	public static function detectDebugMode($list = NULL)
-	{
-		$list = is_string($list) ? preg_split('#[,\s]+#', $list) : (array) $list;
-		if (!isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-			$list[] = '127.0.0.1';
-			$list[] = '::1';
-		}
-		return in_array(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : php_uname('n'), $list, TRUE);
-	}
-
-
-
-
-	/** @deprecated */
-	public function setProductionMode($value = TRUE)
-	{
-		return $this->setDebugMode(is_bool($value) ? !$value : $value);
-	}
-
-
-
-	/** @deprecated */
-	public function isProductionMode()
-	{
-		return !$this->isDebugMode();
-	}
-
-
-
-	/** @deprecated */
 	public static function detectProductionMode($list = NULL)
 	{
-		return !static::detectDebugMode($list);
+		$list = is_string($list) ? preg_split('#[,\s]+#', $list) : $list;
+		$list[] = '127.0.0.1';
+		$list[] = '::1';
+		return !in_array(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : php_uname('n'), $list, TRUE);
 	}
 
 }

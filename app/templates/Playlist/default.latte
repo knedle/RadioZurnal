@@ -103,11 +103,11 @@
                 <span class="label label-info">Dnes hrála</span>
                 {if !empty($today)}<span class="label">{date('H:i', strtotime($interpretSong->modified_at))}</span>{/if}
                 {else}
-                {if !empty($confirm)}
+                {*if !empty($confirm)}
                 <a n:href="playNow!, $interpretSong->interpret_id.'-'.$interpretSong->song_id, 1" class="btn ajax addConfirm" rel="tooltip" title="Právě hraje"><i class="icon-headphones"></i></a>
                 {else} 
                 <a n:href="playNow!, $interpretSong->interpret_id.'-'.$interpretSong->song_id" class="btn ajax addConfirm" rel="tooltip" title="Právě hraje"><i class="icon-headphones"></i></a>
-                {/if}
+                {/if*}
                 <span class="label" rel="tooltip" title="poslední den, kdy byla slyšena">{(strtotime($interpretSong->created_at) < strtotime($interpretSong->modified_at)? (date('d.m.Y', strtotime($interpretSong->modified_at))) : (date('d.m.Y', strtotime($interpretSong->created_at))))}</span>
                 {/if}
 

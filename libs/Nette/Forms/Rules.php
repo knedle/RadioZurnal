@@ -42,7 +42,7 @@ final class Rules extends Nette\Object implements \IteratorAggregate
 		Form::IMAGE => 'The uploaded file must be image in format JPEG, GIF or PNG.',
 	);
 
-	/** @var Rule[] */
+	/** @var array of Rule */
 	private $rules = array();
 
 	/** @var Rules */

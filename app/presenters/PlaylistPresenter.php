@@ -20,6 +20,7 @@ class PlaylistPresenter extends BasePresenter {
     private $perPage = 25;
     private $finalCount = 950; // z clanku...
     private $session = null;
+    private $parameters;
 
     protected function startup() {
         parent::startup();
@@ -34,8 +35,14 @@ class PlaylistPresenter extends BasePresenter {
 
         $totalCount = $playlist->interpretSongs->count();
 
+        $this->parameters = $this->getContext()->getParameters();
+
+
         $this->template->finalCount = $this->finalCount; // cilovy pocet
-        $this->template->totalCount = $totalCount;
+        $this->template->totalCount = $totalCount;        
+        $this->template->urls = $this->parameters['urls'];
+        $this->template->texts = $this->parameters['texts'];
+        $this->template->webservices = $this->parameters['webservices'];
     }
 
     public function renderDefault() {
@@ -287,7 +294,8 @@ class PlaylistPresenter extends BasePresenter {
      * @param type $data 
      */
     public function handlePlayNow($data, $confirm = null) {
-        if ($confirm) {
+        // docasne zruseno kvuli microsoft bingbotu, kterej mi tu spamoval url
+        if ($confirm && false) {
             $playlist = $this->getService('playlists');
             $playlist->playNow($data);
 //            if (!empty($this->session->keyword)) {
@@ -333,7 +341,8 @@ class PlaylistPresenter extends BasePresenter {
     }
 
     public function actionPlayNow($data, $confirm = null) {
-        if ($confirm) {
+        // docasne zruseno kvuli microsoft bingbotu, kterej mi tu spamoval url
+        if ($confirm && false) {
             $playlist = $this->getService('playlists');
             $playlist->playNow($data);
             if (!empty($this->session->keyword)) {
@@ -542,9 +551,38 @@ class PlaylistPresenter extends BasePresenter {
     }
 
     public function handleWhatNowPlayed($cron = false) {
-        $url = "http://www2.rozhlas.cz:81/gselector/player_radiozurnal.js";
+
+        // stary radiozurnal
+        // jsonp_gselector({"content":"<div class=\"item\"><span class=\"item-info item-info-play\">Právě hrajeme:<\/span> <span class=\"item-interpret\">TINA TURNER<\/span> - <span class=\"item-track\">PRIVATE DANCER<\/span><\/div>"});
+
+
+        //$url = "http://www2.rozhlas.cz:81/gselector/player_radiozurnal.js";
+        $url =  $this->parameters['urls']['sourceUrl'];
+
+        $content = file_get_contents($url);
+
+        // dvojka>
+        // cro_onair_v5_station({"w":"dvojka","t":1390512358,"s":1,"i":"ADRIANO CELENTANO","n":"ILL RAGAZZO DELLA VIA GLUCK"});
+
+        // radiozurnal
+        // cro_onair_v5_station({"w":"radiozurnal","t":1390512389,"s":1,"i":"TINA TURNER","n":"PRIVATE DANCER"});        
+
+        if (preg_match("#cro_onair_v5_station\((.+)\)#i", $content, $match)) {
+            $json = $match[1];
+            $jsonData = json_decode($json);
+            //dump($jsonData);
+            if (!empty($jsonData->i)) {
+                $interpret = trim($jsonData->i);
+            }
+            if (!empty($jsonData->n)) {
+                $song = trim($jsonData->n);
+            }
+        }
+
+        /* old
         $html = file_get_contents($url);
         $html = stripcslashes($html);
+
 
         $autorPregMatch = '/<span class="item-interpret">([^<]*)<\/span>/';
         $songPregMatch = '/<span class="item-track">([^<]*)<\/span>/';
@@ -557,6 +595,7 @@ class PlaylistPresenter extends BasePresenter {
             $song = trim($matches[1]);
         }
 
+        /*
         $save = true;
         $jeDenVTydnu = date('N');
         $jeHodin = date('G');
@@ -566,12 +605,18 @@ class PlaylistPresenter extends BasePresenter {
         if ($jeDenVTydnu == 6 && $jeHodin == 9) {
             $save = false;
         }
+        
 
         $this->flashMessage($html, 'dn');
+        */
 
+        $this->flashMessage($content, 'dn');
+
+        /*
         if (empty($save)) {
             $this->flashMessage('V tuto dobu běží pořad se speciálním playlistem...');
         }
+        */
 
         if (!empty($song) && !empty($interpret)) {
             $playlist = $this->getService('playlists');
@@ -596,10 +641,15 @@ class PlaylistPresenter extends BasePresenter {
                 break;
             }
         } else {
-            $this->flashMessage('Právě nic nehraje, Radiožurnál zapomněl napsat co hraje nebo data nebyla správně identifikována');
+            $this->flashMessage('Právě nic nehraje, přehrávač stanice '.$this->parameters['texts']['short'].' zapomněl napsat co hraje nebo data nebyla správně zpracována...');
             $redirect = 'default';
         }
         if ($cron) {
+            if (!empty($song) && !empty($interpret)) {
+                print_r( $interpret . ' - ' . $song."<br>" );
+            } else {
+                print_r('no data<br>');
+            }
             die('this is cron url call');
         } else {
             $this->redirect($redirect);

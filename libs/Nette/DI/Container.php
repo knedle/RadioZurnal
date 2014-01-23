@@ -20,7 +20,7 @@ use Nette;
  *
  * @author     David Grudl
  */
-class Container extends Nette\FreezableObject implements IContainer
+class Container extends Nette\FreezableObject
 {
 	const TAGS = 'tags';
 
@@ -88,7 +88,7 @@ class Container extends Nette\FreezableObject implements IContainer
 			$this->meta[$name] = $meta;
 			return $this;
 
-		} elseif (!is_string($service) || strpos($service, ':') !== FALSE) { // callable
+		} elseif (!is_string($service) || strpos($service, ':') !== FALSE/*5.2* || $service[0] === "\0"*/) { // callable
 			$service = callback($service);
 		}
 
@@ -145,7 +145,7 @@ class Container extends Nette\FreezableObject implements IContainer
 			} else {
 				$this->creating[$name] = TRUE;
 				try {
-					$service = $factory($this);
+					$service = $factory/*5.2*->invoke*/($this);
 				} catch (\Exception $e) {}
 			}
 
@@ -258,13 +258,13 @@ class Container extends Nette\FreezableObject implements IContainer
 	{
 		$rc = Nette\Reflection\ClassType::from($class);
 		if (!$rc->isInstantiable()) {
-			throw new ServiceCreationException("Class $class is not instantiable.");
+			throw new Nette\InvalidArgumentException("Class $class is not instantiable.");
 
 		} elseif ($constructor = $rc->getConstructor()) {
 			return $rc->newInstanceArgs(Helpers::autowireArguments($constructor, $args, $this));
 
 		} elseif ($args) {
-			throw new ServiceCreationException("Unable to pass arguments, class $class has no constructor.");
+			throw new Nette\InvalidArgumentException("Unable to pass arguments, class $class has no constructor.");
 		}
 		return new $class;
 	}

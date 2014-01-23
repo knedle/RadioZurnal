@@ -47,7 +47,7 @@ class Parser extends Nette\Object
 	/** @var string source template */
 	private $input;
 
-	/** @var Token[] */
+	/** @var array of Token */
 	private $output;
 
 	/** @var int  position on source template */
