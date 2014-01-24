@@ -32,6 +32,8 @@ common:
 
 		webservices:
 			googleAnalyticsCode: UA-314942-32
+			disqusShortname: radiozurnal3teckycz
+			flattrUrl: http://flattr.com/thing/563364/Playlist-Radiozurnalu
 
 
 	php:

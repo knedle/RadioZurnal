@@ -85,7 +85,7 @@ class PlaylistPresenter extends BasePresenter {
         $this->template->interpretSongs = $this->getService('interpretSongs');
         $this->template->showSort = false;
         $this->template->summaryList = $yearCount;
-        $this->template->maxYearCount = max($yearCount);
+        $this->template->maxYearCount = !empty($yearCount) ? max($yearCount) : 0;
 
 
 
