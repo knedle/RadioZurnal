@@ -6,7 +6,7 @@ a také playlist ČR2 Dvojka
 http://dvojka.3tecky.cz
 
 by @3knedle
-http://blog.3tecky.cz
+http://www.3tecky.cz
 
 Snaha o získání kompletního playlistu stanice Český rozhlas 1: Radiožurnál
 
